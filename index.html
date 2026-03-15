@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arya'nin Bilgi Yarismasi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#ffd700;--coral:#ff6b6b;--mint:#51cf66;--sky:#74c0fc;--purple:#da77f2;--orange:#ffa94d}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(180deg,#1a1a2e 0%,#16213e 30%,#0f3460 60%,#0a1628 100%);min-height:100vh;color:white;overflow-x:hidden}
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.particle{position:absolute;border-radius:50%;background:rgba(255,255,255,0.15);animation:floatUp linear infinite}
+@keyframes floatUp{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-10vh) scale(1);opacity:0}}
+
+/* SCREENS */
+.screen{display:none;position:relative;z-index:10;min-height:100vh;padding-bottom:220px}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* WELCOME */
+#welcome-screen{text-align:center;gap:20px}
+.game-logo{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.5rem);background:linear-gradient(135deg,var(--gold),var(--orange),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 15px rgba(255,215,0,0.3));animation:logoFloat 3s ease-in-out infinite}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.subtitle{font-size:1.1rem;color:var(--sky);margin-top:-10px}
+.input-group{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:15px}
+.input-group label{font-size:1.2rem;color:var(--gold);font-weight:700}
+.name-input{padding:12px 24px;border-radius:50px;border:3px solid var(--sky);background:rgba(255,255,255,0.08);color:white;font-size:1.2rem;text-align:center;font-family:'Nunito',sans-serif;outline:none;width:280px;transition:all 0.3s}
+.name-input:focus{border-color:var(--gold);box-shadow:0 0 20px rgba(255,215,0,0.3);background:rgba(255,255,255,0.12)}
+.name-input::placeholder{color:rgba(255,255,255,0.35)}
+
+/* LANG */
+.lang-bar{position:fixed;top:12px;right:12px;display:flex;gap:5px;z-index:999;background:rgba(0,0,0,0.4);padding:5px 8px;border-radius:30px;backdrop-filter:blur(10px)}
+.lang-btn{width:32px;height:32px;border-radius:50%;border:2px solid transparent;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s;background:rgba(255,255,255,0.1)}
+.lang-btn:hover{transform:scale(1.15)}
+.lang-btn.active{border-color:var(--gold);box-shadow:0 0 8px rgba(255,215,0,0.4)}
+
+/* BUTTONS */
+.btn{padding:12px 32px;border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.3)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--orange));color:#1a1a2e}
+.btn-continent{background:rgba(255,255,255,0.08);color:white;border:2px solid rgba(255,255,255,0.15);padding:18px 25px;font-size:1.2rem;min-width:200px}
+.btn-continent:hover{background:rgba(255,255,255,0.15);border-color:var(--gold)}
+
+/* SETUP */
+#setup-screen{text-align:center;gap:15px;padding-top:60px}
+.setup-title{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--gold)}
+.setup-label{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--sky);margin-top:8px}
+.option-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.q-option{width:80px;height:80px;border-radius:18px;border:3px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:white;font-family:'Fredoka One',cursive;font-size:1.8rem;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center}
+.q-option:hover,.q-option.selected{border-color:var(--gold);background:rgba(255,215,0,0.15);transform:scale(1.08);box-shadow:0 0 15px rgba(255,215,0,0.2)}
+.diff-btn{padding:12px 22px;border-radius:18px;border:3px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:white;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all 0.3s;text-align:center;min-width:110px}
+.diff-btn .diff-icon{font-size:1.6rem;display:block;margin-bottom:2px}
+.diff-btn:hover,.diff-btn.selected{transform:scale(1.08);box-shadow:0 0 15px rgba(255,215,0,0.2)}
+.diff-btn.easy.selected,.diff-btn.easy:hover{border-color:var(--mint);background:rgba(81,207,102,0.15)}
+.diff-btn.medium.selected,.diff-btn.medium:hover{border-color:var(--orange);background:rgba(255,169,77,0.15)}
+.diff-btn.hard.selected,.diff-btn.hard:hover{border-color:var(--coral);background:rgba(255,107,107,0.15)}
+.cat-btn{padding:14px 24px;border-radius:18px;border:3px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:white;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all 0.3s;text-align:center;min-width:130px}
+.cat-btn .cat-icon{font-size:1.8rem;display:block;margin-bottom:3px}
+.cat-btn:hover,.cat-btn.selected{border-color:var(--purple);background:rgba(218,119,242,0.15);transform:scale(1.08)}
+
+/* CONTINENT */
+#continent-screen{text-align:center;gap:18px}
+.continent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;max-width:650px;width:90%}
+
+/* QUIZ */
+#quiz-screen{padding-top:15px}
+.quiz-layout{display:flex;width:95%;max-width:1100px;gap:15px;align-items:flex-start}
+.quiz-main{flex:1;min-width:0}
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:rgba(0,0,0,0.3);border-radius:12px;margin-bottom:12px;backdrop-filter:blur(10px);flex-wrap:wrap;gap:6px}
+.score-display{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--gold)}
+.diff-badge{font-size:0.7rem;padding:2px 8px;border-radius:15px;font-family:'Fredoka One',cursive;letter-spacing:1px}
+.diff-badge.easy{background:rgba(81,207,102,0.25);color:var(--mint)}
+.diff-badge.medium{background:rgba(255,169,77,0.25);color:var(--orange)}
+.diff-badge.hard{background:rgba(255,107,107,0.25);color:var(--coral)}
+.progress-bar-container{flex:1;min-width:80px;height:10px;background:rgba(255,255,255,0.1);border-radius:8px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--mint),var(--sky));border-radius:8px;transition:width 0.5s ease}
+.question-counter{font-weight:700;color:var(--sky);font-size:0.9rem}
+.quiz-card{background:rgba(255,255,255,0.06);border-radius:20px;padding:25px;border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(10px);margin-bottom:12px}
+.clue-type{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--purple);margin-bottom:6px;text-transform:uppercase;letter-spacing:2px}
+.clue-content{font-size:1.4rem;line-height:1.5;margin-bottom:18px;min-height:70px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.clue-content .flag-display{font-size:5rem;line-height:1}
+.clue-content .flag-img{width:200px;height:133px;object-fit:cover;border-radius:10px;border:3px solid rgba(255,255,255,0.3);box-shadow:0 4px 15px rgba(0,0,0,0.4);transition:transform 0.3s}
+.clue-content .flag-img:hover{transform:scale(1.1)}
+.clue-content .silhouette-img{width:200px;height:140px;object-fit:contain;filter:brightness(0) invert(1) drop-shadow(0 0 6px rgba(116,192,252,0.5));transition:transform 0.3s}
+.clue-content .silhouette-img:hover{transform:scale(1.1)}
+.clue-content .food-emoji{font-size:2.5rem}
+.clue-content .hint-text{font-size:1.2rem;color:var(--sky);font-style:italic;max-width:450px;text-align:center;line-height:1.4}
+.clue-content .math-display{font-size:2rem;font-family:'Fredoka One',cursive;color:var(--gold);background:rgba(0,0,0,0.2);padding:15px 30px;border-radius:15px;border:2px solid rgba(255,215,0,0.2)}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option-btn{padding:14px 16px;border-radius:12px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:white;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all 0.3s;font-family:'Nunito',sans-serif}
+.option-btn:hover:not(.disabled){border-color:var(--sky);background:rgba(116,192,252,0.15);transform:translateY(-2px)}
+.option-btn.correct{border-color:var(--mint);background:rgba(81,207,102,0.25);animation:correctPulse 0.5s ease}
+.option-btn.wrong{border-color:var(--coral);background:rgba(255,107,107,0.25);animation:shake 0.5s ease}
+.option-btn.disabled{pointer-events:none;opacity:0.6}
+.option-btn.reveal-correct{border-color:var(--mint);background:rgba(81,207,102,0.15)}
+@keyframes correctPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.next-btn-area{display:flex;justify-content:center;margin-top:8px}
+
+/* LEADERBOARD */
+.leaderboard{width:260px;flex-shrink:0;background:rgba(0,0,0,0.3);border-radius:18px;padding:15px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08);max-height:calc(100vh - 250px);overflow-y:auto}
+.lb-title{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--gold);text-align:center;margin-bottom:10px;letter-spacing:1px}
+.lb-entry{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;margin-bottom:4px;font-size:0.85rem;transition:background 0.3s}
+.lb-entry:nth-child(2){background:rgba(255,215,0,0.15)}
+.lb-entry:nth-child(3){background:rgba(192,192,192,0.1)}
+.lb-entry:nth-child(4){background:rgba(205,127,50,0.1)}
+.lb-rank{font-family:'Fredoka One',cursive;width:24px;text-align:center;color:var(--gold)}
+.lb-name{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-score{font-family:'Fredoka One',cursive;color:var(--mint)}
+.lb-detail{font-size:0.7rem;color:rgba(255,255,255,0.5)}
+.lb-empty{text-align:center;color:rgba(255,255,255,0.4);font-size:0.85rem;padding:15px 0}
+
+/* DRESSUP - TOCA BOCA SVG */
+.dressup-panel{width:340px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;align-items:center}
+.char-container{width:320px;height:500px;border-radius:28px;border:4px solid rgba(255,255,255,0.12);position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.4);cursor:grab}
+.char-container:active{cursor:grabbing}
+.char-svg-wrap{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;height:100%;transform-style:preserve-3d;transition:transform 0.1s ease-out}
+.char-svg-wrap svg{width:100%;height:100%}
+.char-svg-wrap svg *{transition:fill 0.4s ease,stroke 0.4s ease,opacity 0.4s ease}
+/* Hidden */
+.svg-hidden{display:none!important}
+
+/* Dressup choice panel */
+.du-step-label{font-family:'Fredoka One',cursive;font-size:0.85rem;color:var(--gold);text-align:center}
+.du-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
+.du-choice{padding:7px;border-radius:12px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:5px;font-size:0.8rem;font-weight:700;color:white;font-family:'Nunito',sans-serif;min-height:40px}
+.du-choice:hover{border-color:var(--gold);background:rgba(255,215,0,0.12);transform:scale(1.04)}
+.du-choice.picked{border-color:var(--mint);background:rgba(81,207,102,0.2)}
+.du-choice .color-dot{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0}
+.du-auto-msg{font-size:0.75rem;color:var(--coral);text-align:center;font-style:italic}
+.du-reedit{font-size:0.7rem;color:rgba(255,255,255,0.5);text-align:center;cursor:pointer;padding:4px;transition:color 0.3s}
+.du-reedit:hover{color:var(--gold)}
+
+@media(max-width:900px){
+  .dressup-panel{width:100%;flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .char-container{width:240px;height:380px}
+}
+
+/* RESULT */
+#result-screen{text-align:center;gap:18px}
+.result-title{font-family:'Fredoka One',cursive;font-size:clamp(1.8rem,5vw,3rem)}
+.result-score{font-size:4rem;font-family:'Fredoka One',cursive;color:var(--gold)}
+.result-score-100{font-size:1.2rem;color:var(--sky)}
+.result-msg{font-size:1.2rem;color:var(--sky);max-width:450px}
+.stars-display{font-size:2.5rem;letter-spacing:6px}
+
+/* AQUARIUM */
+.aquarium{position:fixed;bottom:0;left:0;width:100%;height:190px;background:linear-gradient(180deg,rgba(10,22,40,0) 0%,rgba(10,22,40,0.6) 15%,rgba(6,40,80,0.85) 40%,rgba(4,50,90,0.95) 100%);z-index:50;overflow:hidden;border-top:2px solid rgba(116,192,252,0.15)}
+.aquarium::before{content:'';position:absolute;top:0;left:0;width:200%;height:4px;background:linear-gradient(90deg,transparent,rgba(116,192,252,0.4),transparent,rgba(116,192,252,0.2),transparent);animation:waterShimmer 4s linear infinite}
+@keyframes waterShimmer{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
+.sand{position:absolute;bottom:0;width:100%;height:28px;background:linear-gradient(180deg,#c4956a,#b8864f);border-radius:50% 50% 0 0/12px 12px 0 0}
+.seaweed{position:absolute;bottom:24px;width:16px;background:linear-gradient(180deg,#2d8a4e,#1a6b35);border-radius:50% 50% 0 0;transform-origin:bottom center;animation:sway 3s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.bubble{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.3),rgba(116,192,252,0.1));border:1px solid rgba(255,255,255,0.15);animation:bubbleRise linear infinite}
+@keyframes bubbleRise{0%{transform:translateY(0) scale(1);opacity:0.7}100%{transform:translateY(-170px) scale(0.5);opacity:0}}
+.fish{position:absolute;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))}
+.fish-body{position:relative;display:inline-block}
+.fish-eat{display:none;position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:0.8rem;font-weight:700;color:var(--gold);animation:eatPop 0.8s ease forwards;pointer-events:none}
+@keyframes eatPop{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-18px)}}
+.food-pellet{position:absolute;width:9px;height:9px;background:radial-gradient(circle at 35% 35%,#ffcc44,#ff8800,#cc5500);border-radius:50%;z-index:55;box-shadow:0 0 8px rgba(255,153,51,0.6);pointer-events:none}
+.coral-deco{position:absolute;bottom:20px;font-size:1.3rem}
+.treasure{position:absolute;bottom:20px;font-size:1.5rem}
+.confetti-piece{position:fixed;z-index:999;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(-10vh) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+@media(max-width:900px){
+  .quiz-layout{flex-direction:column}
+  .leaderboard{width:100%;max-height:200px;order:-1}
+  .lb-entry{font-size:0.8rem}
+}
+@media(max-width:600px){
+  .options-grid{grid-template-columns:1fr}
+  .quiz-card{padding:18px}
+  .top-bar{justify-content:center}
+  .continent-grid{grid-template-columns:1fr 1fr}
+  .aquarium{height:150px}
+  .lang-bar{top:6px;right:6px}
+  .lang-btn{width:28px;height:28px;font-size:1rem}
+}
+</style>
+</head>
+<body>
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('tr')" title="Turkce"><img src="https://flagcdn.com/w40/tr.png" alt="TR" style="width:22px;height:15px;border-radius:3px"></button>
+  <button class="lang-btn" onclick="setLang('en')" title="English"><img src="https://flagcdn.com/w40/gb.png" alt="EN" style="width:22px;height:15px;border-radius:3px"></button>
+  <button class="lang-btn" onclick="setLang('es')" title="Espanol"><img src="https://flagcdn.com/w40/es.png" alt="ES" style="width:22px;height:15px;border-radius:3px"></button>
+  <button class="lang-btn" onclick="setLang('ar')" title="Arabic"><img src="https://flagcdn.com/w40/sa.png" alt="AR" style="width:22px;height:15px;border-radius:3px"></button>
+</div>
+<div class="particles" id="particles"></div>
+
+<!-- WELCOME -->
+<div class="screen active" id="welcome-screen">
+  <div class="game-logo" data-i18n="gameTitle">Bilgi Yarismasi</div>
+  <div class="subtitle" data-i18n="subtitle">Cografya, Matematik, HP & Stranger Things!</div>
+  <div class="input-group">
+    <label data-i18n="enterName">Adini yaz kasif!</label>
+    <input type="text" class="name-input" id="player-name" placeholder="Adin..." maxlength="20" autofocus>
+  </div>
+  <button class="btn btn-primary" onclick="goToSetup()" data-i18n="start">Basla!</button>
+</div>
+
+<!-- SETUP -->
+<div class="screen" id="setup-screen">
+  <div class="setup-title" id="setup-greeting"></div>
+
+  <div class="setup-label" data-i18n="howMany">Kac soru?</div>
+  <div class="option-row" id="count-row">
+    <button class="q-option" onclick="selectCount(5,this)">5</button>
+    <button class="q-option" onclick="selectCount(10,this)">10</button>
+    <button class="q-option" onclick="selectCount(20,this)">20</button>
+  </div>
+
+  <div class="setup-label" data-i18n="difficulty">Zorluk</div>
+  <div class="option-row" id="diff-row">
+    <button class="diff-btn easy" onclick="selectDiff('easy',this)"><span class="diff-icon">&#x1F331;</span><span data-i18n="easy">Kolay</span></button>
+    <button class="diff-btn medium" onclick="selectDiff('medium',this)"><span class="diff-icon">&#x1F525;</span><span data-i18n="medium">Orta</span></button>
+    <button class="diff-btn hard" onclick="selectDiff('hard',this)"><span class="diff-icon">&#x1F480;</span><span data-i18n="hard">Zor</span></button>
+  </div>
+
+  <div class="setup-label" data-i18n="category">Kategori (birden fazla secebilirsin)</div>
+  <div class="option-row" id="cat-row">
+    <button class="cat-btn" onclick="toggleCat('geo',this)"><span class="cat-icon">&#x1F30D;</span><span data-i18n="geo">Cografya</span></button>
+    <button class="cat-btn" onclick="toggleCat('math',this)"><span class="cat-icon">&#x1F4D0;</span><span data-i18n="math">Matematik</span></button>
+    <button class="cat-btn" onclick="toggleCat('hp',this)"><span class="cat-icon">&#x26A1;</span><span data-i18n="hp">Harry Potter</span></button>
+    <button class="cat-btn" onclick="toggleCat('st',this)"><span class="cat-icon">&#x1F4A1;</span><span data-i18n="st">Stranger Things</span></button>
+  </div>
+
+  <button class="btn btn-primary" id="go-next-btn" onclick="setupNext()" style="display:none" data-i18n="continue">Devam!</button>
+</div>
+
+<!-- CHARACTER SELECT -->
+<div class="screen" id="charselect-screen">
+  <div class="setup-title" data-i18n="pickChar">Arya World - Karakterini Sec!</div>
+  <div class="option-row" style="gap:30px;margin-top:20px">
+    <div style="cursor:pointer;text-align:center;transition:transform 0.3s" onclick="pickChar('girl')" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+      <svg viewBox="0 0 120 200" width="140" height="230">
+        <rect width="120" height="200" rx="20" fill="linear-gradient(180deg,#ffe4f2,#ffb6c1)"/>
+        <ellipse cx="60" cy="55" rx="32" ry="35" fill="#f5d0a9"/>
+        <path d="M28,40 Q32,12 60,8 Q88,12 92,40 Q82,28 60,24 Q38,28 28,40Z" fill="#5a3825"/>
+        <ellipse cx="60" cy="55" rx="38" ry="42" fill="#5a3825" opacity="0.15"/>
+        <rect x="34" y="55" width="14" height="50" rx="7" fill="#5a3825"/>
+        <rect x="72" y="55" width="14" height="50" rx="7" fill="#5a3825"/>
+        <ellipse cx="48" cy="56" rx="6" ry="7" fill="white"/><circle cx="48" cy="57" r="4" fill="#1a1a2e"/><circle cx="46" cy="55" r="1.5" fill="white"/>
+        <ellipse cx="72" cy="56" rx="6" ry="7" fill="white"/><circle cx="72" cy="57" r="4" fill="#1a1a2e"/><circle cx="70" cy="55" r="1.5" fill="white"/>
+        <path d="M53,70 Q60,77 67,70" stroke="#e91e63" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <rect x="50" y="88" width="20" height="10" rx="4" fill="#f5d0a9"/>
+        <rect x="35" y="96" width="50" height="40" rx="12" fill="#f8bbd0"/>
+        <path d="M35,134 L30,168 Q30,174 42,174 L78,174 Q90,174 90,168 L85,134Z" fill="#ce93d8"/>
+        <rect x="42" y="168" width="14" height="24" rx="7" fill="#f5d0a9"/>
+        <rect x="64" y="168" width="14" height="24" rx="7" fill="#f5d0a9"/>
+        <path d="M40,188 L38,195 Q38,200 48,200 L58,200 Q62,200 62,196 L60,188Z" fill="#f06292"/>
+        <path d="M62,188 L60,195 Q60,200 70,200 L80,200 Q84,200 84,196 L82,188Z" fill="#f06292"/>
+      </svg>
+      <div style="font-family:'Fredoka One',cursive;color:var(--gold);margin-top:8px" data-i18n="girl">Kiz</div>
+    </div>
+    <div style="cursor:pointer;text-align:center;transition:transform 0.3s" onclick="pickChar('boy')" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+      <svg viewBox="0 0 120 200" width="140" height="230">
+        <rect width="120" height="200" rx="20" fill="linear-gradient(180deg,#e3f2fd,#90caf9)"/>
+        <ellipse cx="60" cy="55" rx="32" ry="35" fill="#f5d0a9"/>
+        <path d="M30,42 Q34,15 60,10 Q86,15 90,42 Q85,35 60,32 Q35,35 30,42Z" fill="#3e2723"/>
+        <ellipse cx="48" cy="56" rx="6" ry="7" fill="white"/><circle cx="48" cy="57" r="4" fill="#1a1a2e"/><circle cx="46" cy="55" r="1.5" fill="white"/>
+        <ellipse cx="72" cy="56" rx="6" ry="7" fill="white"/><circle cx="72" cy="57" r="4" fill="#1a1a2e"/><circle cx="70" cy="55" r="1.5" fill="white"/>
+        <path d="M53,70 Q60,77 67,70" stroke="#d4796a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <rect x="50" y="88" width="20" height="10" rx="4" fill="#f5d0a9"/>
+        <rect x="35" y="96" width="50" height="40" rx="12" fill="#64b5f6"/>
+        <rect x="38" y="134" width="20" height="48" rx="8" fill="#37474f"/>
+        <rect x="62" y="134" width="20" height="48" rx="8" fill="#37474f"/>
+        <rect x="42" y="168" width="14" height="24" rx="7" fill="#f5d0a9"/>
+        <rect x="64" y="168" width="14" height="24" rx="7" fill="#f5d0a9"/>
+        <path d="M40,188 L38,195 Q38,200 48,200 L58,200 Q62,200 62,196 L60,188Z" fill="#333"/>
+        <path d="M62,188 L60,195 Q60,200 70,200 L80,200 Q84,200 84,196 L82,188Z" fill="#333"/>
+      </svg>
+      <div style="font-family:'Fredoka One',cursive;color:var(--gold);margin-top:8px" data-i18n="boy">Erkek</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTINENT -->
+<div class="screen" id="continent-screen">
+  <div class="setup-title" data-i18n="pickContinent">Kita Sec!</div>
+  <div class="continent-grid">
+    <button class="btn btn-continent" onclick="startQuiz('europe')">&#x1F3F0; <span data-i18n="europe">Avrupa</span></button>
+    <button class="btn btn-continent" onclick="startQuiz('asia')">&#x1F3EF; <span data-i18n="asia">Asya</span></button>
+    <button class="btn btn-continent" onclick="startQuiz('africa')">&#x1F30D; <span data-i18n="africa">Afrika</span></button>
+    <button class="btn btn-continent" onclick="startQuiz('americas')">&#x1F5FD; <span data-i18n="americas">Amerika</span></button>
+    <button class="btn btn-continent" onclick="startQuiz('oceania')">&#x1F3DD; <span data-i18n="oceania">Okyanusya</span></button>
+    <button class="btn btn-continent" onclick="startQuiz('all')">&#x1F310; <span data-i18n="allWorld">Tum Dunya</span></button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="quiz-screen">
+  <div class="quiz-layout">
+    <div class="quiz-main">
+      <div class="top-bar">
+        <div class="score-display">&#x2B50; <span id="score">0</span><span style="font-size:0.7rem;color:var(--sky)">/100</span></div>
+        <span class="diff-badge" id="diff-badge"></span>
+        <div class="progress-bar-container"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="question-counter" id="q-counter">1/10</div>
+      </div>
+      <div class="quiz-card">
+        <div class="clue-type" id="clue-type"></div>
+        <div class="clue-content" id="clue-content"></div>
+        <div class="options-grid" id="options-grid"></div>
+      </div>
+      <div class="next-btn-area">
+        <button class="btn btn-primary" id="next-btn" style="display:none" onclick="nextQuestion()" data-i18n="next">Sonraki &#x2192;</button>
+      </div>
+    </div>
+    <div class="leaderboard" id="leaderboard">
+      <div class="lb-title">&#x1F3C6; TOP 10</div>
+      <div id="lb-list"></div>
+    </div>
+    <div class="dressup-panel" id="dressup-panel" style="display:none">
+      <div class="char-container" id="char-container">
+        <div class="char-svg-wrap" id="char-body">
+          <svg viewBox="0 0 260 480" xmlns="http://www.w3.org/2000/svg">
+            <!-- BG: Toca Boca world -->
+            <defs>
+              <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#87CEEB"/><stop offset="50%" stop-color="#B0E0FF"/><stop offset="55%" stop-color="#90EE90"/><stop offset="100%" stop-color="#5a9e3e"/>
+              </linearGradient>
+            </defs>
+            <rect id="svg-bg" width="260" height="480" rx="24" fill="url(#skyGrad)"/>
+            <!-- Sun -->
+            <circle cx="220" cy="45" r="22" fill="#FFD700" opacity="0.9"/><circle cx="220" cy="45" r="30" fill="#FFD700" opacity="0.15"/>
+            <!-- Clouds -->
+            <ellipse cx="60" cy="50" rx="30" ry="12" fill="white" opacity="0.7"/><ellipse cx="80" cy="44" rx="20" ry="10" fill="white" opacity="0.6"/><ellipse cx="45" cy="46" rx="15" ry="8" fill="white" opacity="0.5"/>
+            <ellipse cx="170" cy="75" rx="25" ry="10" fill="white" opacity="0.5"/><ellipse cx="185" cy="70" rx="15" ry="8" fill="white" opacity="0.4"/>
+            <!-- Grass detail -->
+            <ellipse cx="30" cy="260" rx="12" ry="18" fill="#4a8c2a" opacity="0.4"/>
+            <ellipse cx="235" cy="268" rx="10" ry="15" fill="#4a8c2a" opacity="0.3"/>
+            <!-- Flowers -->
+            <circle cx="40" cy="252" r="6" fill="#ff69b4" opacity="0.7"/><circle cx="40" cy="252" r="2.5" fill="#FFD700"/>
+            <circle cx="225" cy="258" r="5" fill="#ff6347" opacity="0.7"/><circle cx="225" cy="258" r="2" fill="#FFD700"/>
+            <circle cx="130" cy="270" r="4" fill="#da70d6" opacity="0.5"/><circle cx="130" cy="270" r="1.5" fill="white"/>
+
+            <!-- === CHARACTER === -->
+            <!-- Hair back -->
+            <g id="sg-hair-back" class="svg-hidden">
+              <ellipse cx="130" cy="140" rx="68" ry="78" fill="#5a3825"/>
+              <rect x="68" y="140" width="28" height="95" rx="14" fill="#5a3825"/>
+              <rect x="164" y="140" width="28" height="95" rx="14" fill="#5a3825"/>
+            </g>
+            <!-- Head -->
+            <ellipse id="sg-head" cx="130" cy="148" rx="56" ry="60" fill="#f5d0a9"/>
+            <!-- Hair front -->
+            <path id="sg-hair-front" class="svg-hidden" d="M74,130 Q78,85 130,78 Q182,85 186,130 Q175,115 130,108 Q85,115 74,130Z" fill="#5a3825"/>
+            <!-- Eyes -->
+            <g id="sg-eyes" class="svg-hidden">
+              <ellipse cx="108" cy="150" rx="13" ry="14" fill="white"/>
+              <circle cx="108" cy="152" r="8.5" fill="#1a1a2e"/>
+              <circle cx="105" cy="148" r="3.5" fill="white"/>
+              <ellipse cx="152" cy="150" rx="13" ry="14" fill="white"/>
+              <circle cx="152" cy="152" r="8.5" fill="#1a1a2e"/>
+              <circle cx="149" cy="148" r="3.5" fill="white"/>
+            </g>
+            <!-- Eye color overlays -->
+            <circle id="sg-iris-l" class="svg-hidden" cx="108" cy="152" r="8.5" fill="#5D4037" opacity="0.85"/>
+            <circle id="sg-iris-r" class="svg-hidden" cx="152" cy="152" r="8.5" fill="#5D4037" opacity="0.85"/>
+            <circle cx="108" cy="152" r="4" fill="#1a1a2e" class="svg-hidden" id="sg-pupil-l"/>
+            <circle cx="152" cy="152" r="4" fill="#1a1a2e" class="svg-hidden" id="sg-pupil-r"/>
+            <circle cx="105" cy="149" r="2.5" fill="white" class="svg-hidden" id="sg-shine-l"/>
+            <circle cx="149" cy="149" r="2.5" fill="white" class="svg-hidden" id="sg-shine-r"/>
+            <!-- Eyebrows -->
+            <g id="sg-brows" class="svg-hidden">
+              <path d="M94,133 Q104,128 118,132" stroke="#5a3825" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <path d="M142,132 Q156,128 166,133" stroke="#5a3825" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- Nose -->
+            <ellipse cx="130" cy="168" rx="3" ry="2.5" fill="rgba(0,0,0,0.05)"/>
+            <!-- Mouth -->
+            <path id="sg-mouth" class="svg-hidden" d="M118,178 Q130,190 142,178" stroke="#e57373" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- Blush -->
+            <g id="sg-blush" class="svg-hidden">
+              <ellipse cx="92" cy="172" rx="10" ry="6" fill="#ffab91" opacity="0.35"/>
+              <ellipse cx="168" cy="172" rx="10" ry="6" fill="#ffab91" opacity="0.35"/>
+            </g>
+            <!-- Neck -->
+            <rect id="sg-neck" x="117" y="205" width="26" height="16" rx="6" fill="#f5d0a9"/>
+            <!-- Arms (skin, behind torso) -->
+            <g id="sg-arms-skin">
+              <path d="M82,228 Q62,230 55,245 Q48,270 52,290 Q55,296 60,294 Q66,290 68,270 L82,248Z" fill="#f5d0a9"/>
+              <path d="M178,228 Q198,230 205,245 Q212,270 208,290 Q205,296 200,294 Q194,290 192,270 L178,248Z" fill="#f5d0a9"/>
+            </g>
+            <!-- Torso (clothing) -->
+            <path id="sg-torso" class="svg-hidden" d="M82,220 Q82,216 92,216 L168,216 Q178,216 178,220 L178,295 Q178,302 168,302 L92,302 Q82,302 82,295Z" fill="#ecf0f1"/>
+            <!-- Arms (clothing sleeves) -->
+            <g id="sg-sleeves" class="svg-hidden">
+              <path d="M82,222 Q65,224 58,236 Q55,244 60,248 L82,242Z" fill="#ecf0f1"/>
+              <path d="M178,222 Q195,224 202,236 Q205,244 200,248 L178,242Z" fill="#ecf0f1"/>
+            </g>
+            <!-- Skirt -->
+            <path id="sg-skirt" class="svg-hidden" d="M82,294 L78,362 Q78,370 92,370 L168,370 Q182,370 182,362 L178,294Z" fill="#ef5350"/>
+            <!-- Legs -->
+            <rect id="sg-leg-l" x="94" y="368" width="26" height="52" rx="13" fill="#f5d0a9"/>
+            <rect id="sg-leg-r" x="140" y="368" width="26" height="52" rx="13" fill="#f5d0a9"/>
+            <!-- Socks -->
+            <rect id="sg-sock-l" class="svg-hidden" x="92" y="395" width="30" height="28" rx="10" fill="white"/>
+            <rect id="sg-sock-r" class="svg-hidden" x="138" y="395" width="30" height="28" rx="10" fill="white"/>
+            <!-- Shoes -->
+            <path id="sg-shoe-l" class="svg-hidden" d="M89,415 L86,430 Q86,442 100,442 L120,442 Q128,442 128,435 L125,415Z" fill="#333"/>
+            <path id="sg-shoe-r" class="svg-hidden" d="M135,415 L132,430 Q132,442 146,442 L166,442 Q174,442 174,435 L171,415Z" fill="#333"/>
+            <!-- Glasses -->
+            <g id="sg-glasses" class="svg-hidden">
+              <rect x="90" y="142" width="28" height="22" rx="10" fill="none" stroke="#333" stroke-width="2.5"/>
+              <rect x="142" y="142" width="28" height="22" rx="10" fill="none" stroke="#333" stroke-width="2.5"/>
+              <line x1="118" y1="153" x2="142" y2="153" stroke="#333" stroke-width="2"/>
+            </g>
+            <!-- Hat -->
+            <g id="sg-hat" class="svg-hidden">
+              <ellipse cx="130" cy="98" rx="62" ry="8" fill="#42a5f5"/>
+              <path d="M72,98 Q72,62 130,58 Q188,62 188,98Z" fill="#42a5f5"/>
+            </g>
+            <!-- Necklace -->
+            <path id="sg-necklace" class="svg-hidden" d="M110,216 Q110,232 130,236 Q150,232 150,216" fill="none" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/>
+            <!-- Earrings -->
+            <g id="sg-earrings" class="svg-hidden">
+              <circle cx="76" cy="165" r="5" fill="#ffd700"/>
+              <circle cx="184" cy="165" r="5" fill="#ffd700"/>
+            </g>
+            <!-- Bag -->
+            <g id="sg-bag" class="svg-hidden">
+              <line x1="188" y1="230" x2="192" y2="305" stroke="#795548" stroke-width="3" stroke-linecap="round"/>
+              <rect x="180" y="298" width="30" height="32" rx="8" fill="#795548" stroke="rgba(0,0,0,0.1)" stroke-width="1.5"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="du-step-label" id="du-step-label"></div>
+      <div class="du-choices" id="du-choices"></div>
+      <div class="du-auto-msg cp-hidden" id="du-auto-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="screen" id="result-screen">
+  <div class="result-title" id="result-title"></div>
+  <div class="result-score" id="result-score"></div>
+  <div class="result-score-100" id="result-detail"></div>
+  <div class="result-msg" id="result-msg"></div>
+  <div class="stars-display" id="stars-display"></div>
+  <button class="btn btn-primary" onclick="restart()" data-i18n="playAgain">Tekrar Oyna!</button>
+</div>
+
+<!-- AQUARIUM -->
+<div class="aquarium" id="aquarium"><div class="sand"></div></div>
+
+<script>
+// ==================== i18n ====================
+const LANG={
+  tr:{gameTitle:"Bilgi Yarismasi",subtitle:"Cografya & Matematik!",pickChar:"Arya World - Karakterini Sec!",girl:"Kiz",boy:"Erkek",enterName:"Adini yaz kasif!",start:"Basla!",howMany:"Kac soru?",difficulty:"Zorluk",category:"Kategori",easy:"Kolay",medium:"Orta",hard:"Zor",geo:"Cografya",math:"Matematik",hp:"Harry Potter",st:"Stranger Things",dressup:"Giydirme",mix:"Karisik",continue:"Devam!",pickContinent:"Kita Sec!",europe:"Avrupa",asia:"Asya",africa:"Afrika",americas:"Amerika",oceania:"Okyanusya",allWorld:"Tum Dunya",next:"Sonraki \u2192",playAgain:"Tekrar Oyna!",flag:"BAYRAK",silhouette:"ULKE SEKLI",food:"YEMEK",famous:"UNLU",capital:"BASKENT",language:"DIL",landmark:"SIMGE",currency:"PARA BIRIMI",population:"NUFUS",neighbors:"KOMSULAR",clueFlag:"Bu hangi ulkenin bayragi?",clueSilhouette:"Bu sekil hangi ulkeye ait?",clueFood:"Bu yemek hangi ulkeye ait?",clueFamous:"Bu unlu sey hangi ulkeye ait?",clueCapital:"Baskenti {0} olan ulke?",clueLanguage:"Resmi dili {0} olan ulke?",clueLandmark:"Bu simge hangi ulkede?",clueCurrency:"Para birimi {0} olan ulke?",cluePopulation:"Nufusu yaklasik {0} olan ulke?",clueNeighbors:"Bu ulkelere komsu olan ulke?",resultGreat:"Harikasin {0}!",resultGood:"Supersin {0}!",resultOk:"Iyi is {0}!",resultTry:"Tekrar dene {0}!",scoreText:"{0} / {1} dogru",questionsLabel:"soru",top10:"EN IYI 10",noScores:"Henuz skor yok",mathQ:"MATEMATIK"},
+  en:{gameTitle:"Quiz Challenge",subtitle:"Geography & Math!",pickChar:"Arya World - Pick Your Character!",girl:"Girl",boy:"Boy",enterName:"Enter your name!",start:"Start!",howMany:"How many questions?",difficulty:"Difficulty",category:"Category",easy:"Easy",medium:"Medium",hard:"Hard",geo:"Geography",math:"Math",hp:"Harry Potter",st:"Stranger Things",dressup:"Dress Up",mix:"Mixed",continue:"Continue!",pickContinent:"Pick a Continent!",europe:"Europe",asia:"Asia",africa:"Africa",americas:"Americas",oceania:"Oceania",allWorld:"Whole World",next:"Next \u2192",playAgain:"Play Again!",flag:"FLAG",silhouette:"SHAPE",food:"FOOD",famous:"FAMOUS",capital:"CAPITAL",language:"LANGUAGE",landmark:"LANDMARK",currency:"CURRENCY",population:"POPULATION",neighbors:"NEIGHBORS",clueFlag:"Which country's flag?",clueSilhouette:"Which country shape?",clueFood:"Which country's food?",clueFamous:"Which country is this famous for?",clueCapital:"Capital is {0}?",clueLanguage:"Official language is {0}?",clueLandmark:"Which country has this landmark?",clueCurrency:"Which country uses {0}?",cluePopulation:"Population ~{0}?",clueNeighbors:"Which country neighbors these?",resultGreat:"Amazing {0}!",resultGood:"Great {0}!",resultOk:"Good {0}!",resultTry:"Try again {0}!",scoreText:"{0}/{1} correct",questionsLabel:"questions",top10:"TOP 10",noScores:"No scores yet",mathQ:"MATH"},
+  es:{gameTitle:"Concurso de Saber",subtitle:"Geografia y Mates!",pickChar:"Arya World - Elige Personaje!",girl:"Chica",boy:"Chico",enterName:"Tu nombre!",start:"Empezar!",howMany:"Cuantas preguntas?",difficulty:"Dificultad",category:"Categoria",easy:"Facil",medium:"Medio",hard:"Dificil",geo:"Geografia",math:"Mates",hp:"Harry Potter",st:"Stranger Things",dressup:"Vestir",mix:"Mixto",continue:"Continuar!",pickContinent:"Elige Continente!",europe:"Europa",asia:"Asia",africa:"Africa",americas:"America",oceania:"Oceania",allWorld:"Todo",next:"Siguiente \u2192",playAgain:"Jugar de nuevo!",flag:"BANDERA",silhouette:"FORMA",food:"COMIDA",famous:"FAMOSO",capital:"CAPITAL",language:"IDIOMA",landmark:"MONUMENTO",currency:"MONEDA",population:"POBLACION",neighbors:"VECINOS",clueFlag:"De que pais es?",clueSilhouette:"Que pais?",clueFood:"De que pais?",clueFamous:"Famoso en?",clueCapital:"Capital {0}?",clueLanguage:"Idioma {0}?",clueLandmark:"Donde esta?",clueCurrency:"Usa {0}?",cluePopulation:"Poblacion ~{0}?",clueNeighbors:"Vecino de?",resultGreat:"Increible {0}!",resultGood:"Genial {0}!",resultOk:"Bien {0}!",resultTry:"Otra vez {0}!",scoreText:"{0}/{1} correctas",questionsLabel:"preguntas",top10:"TOP 10",noScores:"Sin puntos",mathQ:"MATES"},
+  ar:{gameTitle:"\u0645\u0633\u0627\u0628\u0642\u0629 \u0627\u0644\u0645\u0639\u0631\u0641\u0629",pickChar:"\u0627\u062E\u062A\u0631 \u0634\u062E\u0635\u064A\u062A\u0643!",girl:"\u0628\u0646\u062A",boy:"\u0648\u0644\u062F",subtitle:"\u062C\u063A\u0631\u0627\u0641\u064A\u0627 \u0648 \u0631\u064A\u0627\u0636\u064A\u0627\u062A!",enterName:"\u0627\u0633\u0645\u0643!",start:"\u0627\u0628\u062F\u0623!",howMany:"\u0643\u0645 \u0633\u0624\u0627\u0644\u061F",difficulty:"\u0627\u0644\u0635\u0639\u0648\u0628\u0629",category:"\u0627\u0644\u0641\u0626\u0629",easy:"\u0633\u0647\u0644",medium:"\u0645\u062A\u0648\u0633\u0637",hard:"\u0635\u0639\u0628",geo:"\u062C\u063A\u0631\u0627\u0641\u064A\u0627",math:"\u0631\u064A\u0627\u0636\u064A\u0627\u062A",mix:"\u0645\u062E\u062A\u0644\u0637",continue:"\u0627\u0633\u062A\u0645\u0631!",pickContinent:"\u0627\u062E\u062A\u0631 \u0642\u0627\u0631\u0629!",europe:"\u0623\u0648\u0631\u0648\u0628\u0627",asia:"\u0622\u0633\u064A\u0627",africa:"\u0623\u0641\u0631\u064A\u0642\u064A\u0627",americas:"\u0623\u0645\u0631\u064A\u0643\u0627",oceania:"\u0623\u0648\u0642\u064A\u0627\u0646\u0648\u0633\u064A\u0627",allWorld:"\u0627\u0644\u0643\u0644",next:"\u0627\u0644\u062A\u0627\u0644\u064A \u2190",playAgain:"\u0645\u0631\u0629 \u0623\u062E\u0631\u0649!",flag:"\u0639\u0644\u0645",silhouette:"\u0634\u0643\u0644",food:"\u0637\u0639\u0627\u0645",famous:"\u0645\u0634\u0647\u0648\u0631",capital:"\u0639\u0627\u0635\u0645\u0629",language:"\u0644\u063A\u0629",landmark:"\u0645\u0639\u0644\u0645",currency:"\u0639\u0645\u0644\u0629",population:"\u0633\u0643\u0627\u0646",neighbors:"\u062C\u064A\u0631\u0627\u0646",clueFlag:"\u0644\u0645\u0646\u061F",clueSilhouette:"\u0623\u064A \u062F\u0648\u0644\u0629\u061F",clueFood:"\u0644\u0645\u0646\u061F",clueFamous:"\u0645\u0634\u0647\u0648\u0631 \u0641\u064A\u061F",clueCapital:"\u0639\u0627\u0635\u0645\u0629 {0}\u061F",clueLanguage:"\u0644\u063A\u0629 {0}\u061F",clueLandmark:"\u0623\u064A\u0646\u061F",clueCurrency:"\u064A\u0633\u062A\u062E\u062F\u0645 {0}\u061F",cluePopulation:"\u0633\u0643\u0627\u0646 ~{0}\u061F",clueNeighbors:"\u062C\u0627\u0631 \u0645\u0646\u061F",resultGreat:"\u0631\u0627\u0626\u0639 {0}!",resultGood:"\u0645\u0645\u062A\u0627\u0632 {0}!",resultOk:"\u062C\u064A\u062F {0}!",resultTry:"\u062D\u0627\u0648\u0644 {0}!",scoreText:"{0}/{1}",questionsLabel:"\u0633\u0624\u0627\u0644",top10:"\u0623\u0641\u0636\u0644 10",noScores:"\u0644\u0627 \u0646\u062A\u0627\u0626\u062C",mathQ:"\u0631\u064A\u0627\u0636\u064A\u0627\u062A"}
+};
+let currentLang='tr';
+function setLang(lang){
+  currentLang=lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+  document.documentElement.lang=lang;
+  document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(LANG[lang][k])el.textContent=LANG[lang][k];});
+  // Re-render current question if quiz is active
+  if(document.getElementById('quiz-screen').classList.contains('active')&&questions.length>0&&!answeredThisQ){
+    renderQuestion();
+  }
+}
+function t(key,...args){let s=LANG[currentLang][key]||LANG.en[key]||key;args.forEach((a,i)=>{s=s.replace(`{${i}}`,a);});return s;}
+
+// ==================== COUNTRY DATA ====================
+const COUNTRIES={
+  europe:[
+    {name:{tr:"Turkiye",en:"Turkey"},flag:"\uD83C\uDDF9\uD83C\uDDF7",capital:{tr:"Ankara",en:"Ankara"},food:"\uD83E\uDD59 Kebap",famous:{tr:"Kapadokya Balonlari",en:"Cappadocia Balloons"},landmark:{tr:"Ayasofya",en:"Hagia Sophia"},language:{tr:"Turkce",en:"Turkish"},currency:{tr:"Turk Lirasi",en:"Turkish Lira"},code:"TR",population:"85M+",neighbors:{tr:"Yunanistan, Bulgaristan, Iran, Irak, Suriye",en:"Greece, Bulgaria, Iran, Iraq, Syria"},funFact:{tr:"Istanbul 2 kitada",en:"Istanbul spans 2 continents"}},
+    {name:{tr:"Fransa",en:"France"},flag:"\uD83C\uDDEB\uD83C\uDDF7",capital:{tr:"Paris",en:"Paris"},food:"\uD83E\uDD50 Kruvasan",famous:{tr:"Eyfel Kulesi",en:"Eiffel Tower"},landmark:{tr:"Eyfel Kulesi",en:"Eiffel Tower"},language:{tr:"Fransizca",en:"French"},currency:{tr:"Euro",en:"Euro"},code:"FR",population:"68M+",neighbors:{tr:"Almanya, Ispanya, Italya",en:"Germany, Spain, Italy"}},
+    {name:{tr:"Italya",en:"Italy"},flag:"\uD83C\uDDEE\uD83C\uDDF9",capital:{tr:"Roma",en:"Rome"},food:"\uD83C\uDF55 Pizza & Pasta",famous:{tr:"Kolezyum",en:"Colosseum"},landmark:{tr:"Pisa Kulesi",en:"Leaning Tower of Pisa"},language:{tr:"Italyanca",en:"Italian"},currency:{tr:"Euro",en:"Euro"},code:"IT",population:"59M+",neighbors:{tr:"Fransa, Isvicre, Avusturya",en:"France, Switzerland, Austria"}},
+    {name:{tr:"Ispanya",en:"Spain"},flag:"\uD83C\uDDEA\uD83C\uDDF8",capital:{tr:"Madrid",en:"Madrid"},food:"\uD83E\uDD58 Paella",famous:{tr:"Flamenko",en:"Flamenco"},landmark:{tr:"Sagrada Familia",en:"Sagrada Familia"},language:{tr:"Ispanyolca",en:"Spanish"},currency:{tr:"Euro",en:"Euro"},code:"ES",population:"47M+",neighbors:{tr:"Fransa, Portekiz",en:"France, Portugal"}},
+    {name:{tr:"Almanya",en:"Germany"},flag:"\uD83C\uDDE9\uD83C\uDDEA",capital:{tr:"Berlin",en:"Berlin"},food:"\uD83C\uDF2D Bratwurst",famous:{tr:"Oktoberfest",en:"Oktoberfest"},landmark:{tr:"Brandenburg Kapisi",en:"Brandenburg Gate"},language:{tr:"Almanca",en:"German"},currency:{tr:"Euro",en:"Euro"},code:"DE",population:"84M+",neighbors:{tr:"Fransa, Polonya, Danimarka",en:"France, Poland, Denmark"}},
+    {name:{tr:"Ingiltere",en:"United Kingdom"},flag:"\uD83C\uDDEC\uD83C\uDDE7",capital:{tr:"Londra",en:"London"},food:"\uD83E\uDED6 Fish & Chips",famous:{tr:"Big Ben",en:"Big Ben"},landmark:{tr:"Tower Bridge",en:"Tower Bridge"},language:{tr:"Ingilizce",en:"English"},currency:{tr:"Sterlin",en:"Pound"},code:"GB",population:"67M+",neighbors:{tr:"Irlanda",en:"Ireland"}},
+    {name:{tr:"Yunanistan",en:"Greece"},flag:"\uD83C\uDDEC\uD83C\uDDF7",capital:{tr:"Atina",en:"Athens"},food:"\uD83E\uDD57 Yunan Salatasi",famous:{tr:"Akropolis",en:"Acropolis"},landmark:{tr:"Parthenon",en:"Parthenon"},language:{tr:"Yunanca",en:"Greek"},currency:{tr:"Euro",en:"Euro"},code:"GR",population:"10M+",neighbors:{tr:"Turkiye, Bulgaristan",en:"Turkey, Bulgaria"}},
+    {name:{tr:"Hollanda",en:"Netherlands"},flag:"\uD83C\uDDF3\uD83C\uDDF1",capital:{tr:"Amsterdam",en:"Amsterdam"},food:"\uD83E\uDDC0 Gouda",famous:{tr:"Laleler & Yel Degirmeni",en:"Tulips & Windmills"},landmark:{tr:"Yel Degirmenleri",en:"Windmills"},language:{tr:"Hollandaca",en:"Dutch"},currency:{tr:"Euro",en:"Euro"},code:"NL"},
+    {name:{tr:"Portekiz",en:"Portugal"},flag:"\uD83C\uDDF5\uD83C\uDDF9",capital:{tr:"Lizbon",en:"Lisbon"},food:"\uD83C\uDF6E Pastel de Nata",famous:{tr:"Fado Muzigi",en:"Fado Music"},landmark:{tr:"Belem Kulesi",en:"Belem Tower"},language:{tr:"Portekizce",en:"Portuguese"},currency:{tr:"Euro",en:"Euro"},code:"PT"},
+    {name:{tr:"Rusya",en:"Russia"},flag:"\uD83C\uDDF7\uD83C\uDDFA",capital:{tr:"Moskova",en:"Moscow"},food:"\uD83E\uDD5F Pelmeni",famous:{tr:"Kizil Meydan",en:"Red Square"},landmark:{tr:"Kremlin",en:"Kremlin"},language:{tr:"Rusca",en:"Russian"},currency:{tr:"Ruble",en:"Ruble"},code:"RU",population:"144M+",neighbors:{tr:"14 ulke ile sinir!",en:"Borders 14 countries!"}},
+    {name:{tr:"Isvec",en:"Sweden"},flag:"\uD83C\uDDF8\uD83C\uDDEA",capital:{tr:"Stockholm",en:"Stockholm"},food:"\uD83C\uDF5D Kottbullar",famous:{tr:"IKEA & ABBA",en:"IKEA & ABBA"},landmark:{tr:"Buz Oteli",en:"Ice Hotel"},language:{tr:"Isvecce",en:"Swedish"},currency:{tr:"Krona",en:"Krona"},code:"SE"},
+    {name:{tr:"Norvec",en:"Norway"},flag:"\uD83C\uDDF3\uD83C\uDDF4",capital:{tr:"Oslo",en:"Oslo"},food:"\uD83D\uDC1F Somon",famous:{tr:"Fiyordlar",en:"Fjords"},landmark:{tr:"Kuzey Isiklari",en:"Northern Lights"},language:{tr:"Norvecce",en:"Norwegian"},currency:{tr:"Krone",en:"Krone"},code:"NO"},
+  ],
+  asia:[
+    {name:{tr:"Japonya",en:"Japan"},flag:"\uD83C\uDDEF\uD83C\uDDF5",capital:{tr:"Tokyo",en:"Tokyo"},food:"\uD83C\uDF63 Susi & Ramen",famous:{tr:"Fuji Dagi",en:"Mount Fuji"},landmark:{tr:"Torii Kapisi",en:"Torii Gate"},language:{tr:"Japonca",en:"Japanese"},currency:{tr:"Yen",en:"Yen"},code:"JP",population:"125M+",neighbors:{tr:"Ada - Kore, Cin",en:"Island - Korea, China"}},
+    {name:{tr:"Cin",en:"China"},flag:"\uD83C\uDDE8\uD83C\uDDF3",capital:{tr:"Pekin",en:"Beijing"},food:"\uD83E\uDD61 Dim Sum",famous:{tr:"Cin Seddi",en:"Great Wall"},landmark:{tr:"Cin Seddi",en:"Great Wall"},language:{tr:"Cince",en:"Chinese"},currency:{tr:"Yuan",en:"Yuan"},code:"CN",population:"1.4B+",neighbors:{tr:"14 ulke!",en:"14 countries!"}},
+    {name:{tr:"Hindistan",en:"India"},flag:"\uD83C\uDDEE\uD83C\uDDF3",capital:{tr:"Yeni Delhi",en:"New Delhi"},food:"\uD83C\uDF5B Curry",famous:{tr:"Tac Mahal",en:"Taj Mahal"},landmark:{tr:"Tac Mahal",en:"Taj Mahal"},language:{tr:"Hintce",en:"Hindi"},currency:{tr:"Rupi",en:"Rupee"},code:"IN",population:"1.4B+",neighbors:{tr:"Pakistan, Cin, Nepal",en:"Pakistan, China, Nepal"}},
+    {name:{tr:"Guney Kore",en:"South Korea"},flag:"\uD83C\uDDF0\uD83C\uDDF7",capital:{tr:"Seul",en:"Seoul"},food:"\uD83E\uDD6C Kimchi",famous:{tr:"K-Pop",en:"K-Pop"},landmark:{tr:"Gyeongbokgung",en:"Gyeongbokgung"},language:{tr:"Korece",en:"Korean"},currency:{tr:"Won",en:"Won"},code:"KR",population:"52M+",neighbors:{tr:"Kuzey Kore",en:"North Korea"}},
+    {name:{tr:"Tayland",en:"Thailand"},flag:"\uD83C\uDDF9\uD83C\uDDED",capital:{tr:"Bangkok",en:"Bangkok"},food:"\uD83C\uDF5C Pad Thai",famous:{tr:"Tapinaklar",en:"Temples"},landmark:{tr:"Buyuk Saray",en:"Grand Palace"},language:{tr:"Tayca",en:"Thai"},currency:{tr:"Baht",en:"Baht"},code:"TH"},
+    {name:{tr:"BAE",en:"UAE"},flag:"\uD83C\uDDE6\uD83C\uDDEA",capital:{tr:"Abu Dabi",en:"Abu Dhabi"},food:"\uD83E\uDED3 Saverma",famous:{tr:"Burj Khalifa",en:"Burj Khalifa"},landmark:{tr:"Burj Khalifa",en:"Burj Khalifa"},language:{tr:"Arapca",en:"Arabic"},currency:{tr:"Dirhem",en:"Dirham"},code:"AE"},
+    {name:{tr:"Vietnam",en:"Vietnam"},flag:"\uD83C\uDDFB\uD83C\uDDF3",capital:{tr:"Hanoi",en:"Hanoi"},food:"\uD83C\uDF5C Pho",famous:{tr:"Ha Long Korfezi",en:"Ha Long Bay"},landmark:{tr:"Ha Long",en:"Ha Long Bay"},language:{tr:"Vietnamca",en:"Vietnamese"},currency:{tr:"Dong",en:"Dong"},code:"VN"},
+    {name:{tr:"Endonezya",en:"Indonesia"},flag:"\uD83C\uDDEE\uD83C\uDDE9",capital:{tr:"Cakarta",en:"Jakarta"},food:"\uD83C\uDF5A Nasi Goreng",famous:{tr:"Bali",en:"Bali"},landmark:{tr:"Borobudur",en:"Borobudur"},language:{tr:"Endonezce",en:"Indonesian"},currency:{tr:"Rupi",en:"Rupiah"},code:"ID"},
+  ],
+  africa:[
+    {name:{tr:"Misir",en:"Egypt"},flag:"\uD83C\uDDEA\uD83C\uDDEC",capital:{tr:"Kahire",en:"Cairo"},food:"\uD83E\uDD58 Koshary",famous:{tr:"Piramitler",en:"Pyramids"},landmark:{tr:"Giza Piramitleri",en:"Pyramids of Giza"},language:{tr:"Arapca",en:"Arabic"},currency:{tr:"Misir Lirasi",en:"Egyptian Pound"},code:"EG",population:"104M+",neighbors:{tr:"Libya, Sudan",en:"Libya, Sudan"}},
+    {name:{tr:"Guney Afrika",en:"South Africa"},flag:"\uD83C\uDDFF\uD83C\uDDE6",capital:{tr:"Pretoria",en:"Pretoria"},food:"\uD83E\uDD69 Biltong",famous:{tr:"Safari",en:"Safari"},landmark:{tr:"Masa Dagi",en:"Table Mountain"},language:{tr:"Ingilizce & Zuluca",en:"English & Zulu"},currency:{tr:"Rand",en:"Rand"},code:"ZA"},
+    {name:{tr:"Kenya",en:"Kenya"},flag:"\uD83C\uDDF0\uD83C\uDDEA",capital:{tr:"Nairobi",en:"Nairobi"},food:"\uD83C\uDF72 Ugali",famous:{tr:"Masai Mara",en:"Masai Mara"},landmark:{tr:"Masai Mara",en:"Masai Mara"},language:{tr:"Svahili",en:"Swahili"},currency:{tr:"Silin",en:"Shilling"},code:"KE"},
+    {name:{tr:"Fas",en:"Morocco"},flag:"\uD83C\uDDF2\uD83C\uDDE6",capital:{tr:"Rabat",en:"Rabat"},food:"\uD83E\uDD58 Kuskus",famous:{tr:"Marakes",en:"Marrakech"},landmark:{tr:"Hassan Camii",en:"Hassan Mosque"},language:{tr:"Arapca",en:"Arabic"},currency:{tr:"Dirhem",en:"Dirham"},code:"MA"},
+    {name:{tr:"Nijerya",en:"Nigeria"},flag:"\uD83C\uDDF3\uD83C\uDDEC",capital:{tr:"Abuja",en:"Abuja"},food:"\uD83C\uDF5A Jollof Rice",famous:{tr:"Nollywood",en:"Nollywood"},landmark:{tr:"Zuma Kayasi",en:"Zuma Rock"},language:{tr:"Ingilizce",en:"English"},currency:{tr:"Naira",en:"Naira"},code:"NG"},
+    {name:{tr:"Tanzanya",en:"Tanzania"},flag:"\uD83C\uDDF9\uD83C\uDDFF",capital:{tr:"Dodoma",en:"Dodoma"},food:"\uD83C\uDF4C Chipsi Mayai",famous:{tr:"Kilimanjaro",en:"Kilimanjaro"},landmark:{tr:"Kilimanjaro",en:"Kilimanjaro"},language:{tr:"Svahili",en:"Swahili"},currency:{tr:"Silin",en:"Shilling"},code:"TZ"},
+  ],
+  americas:[
+    {name:{tr:"ABD",en:"USA"},flag:"\uD83C\uDDFA\uD83C\uDDF8",capital:{tr:"Washington D.C.",en:"Washington D.C."},food:"\uD83C\uDF54 Hamburger",famous:{tr:"Ozgurluk Heykeli",en:"Statue of Liberty"},landmark:{tr:"Ozgurluk Heykeli",en:"Statue of Liberty"},language:{tr:"Ingilizce",en:"English"},currency:{tr:"Dolar",en:"Dollar"},code:"US",population:"330M+",neighbors:{tr:"Kanada, Meksika",en:"Canada, Mexico"}},
+    {name:{tr:"Brezilya",en:"Brazil"},flag:"\uD83C\uDDE7\uD83C\uDDF7",capital:{tr:"Brasilia",en:"Brasilia"},food:"\uD83E\uDD69 Churrasco",famous:{tr:"Karnaval",en:"Carnival"},landmark:{tr:"Kurtarici Isa",en:"Christ the Redeemer"},language:{tr:"Portekizce",en:"Portuguese"},currency:{tr:"Real",en:"Real"},code:"BR",population:"215M+",neighbors:{tr:"10 ulke!",en:"10 countries!"}},
+    {name:{tr:"Meksika",en:"Mexico"},flag:"\uD83C\uDDF2\uD83C\uDDFD",capital:{tr:"Meksiko City",en:"Mexico City"},food:"\uD83C\uDF2E Taco",famous:{tr:"Maya Piramitleri",en:"Mayan Pyramids"},landmark:{tr:"Chichen Itza",en:"Chichen Itza"},language:{tr:"Ispanyolca",en:"Spanish"},currency:{tr:"Peso",en:"Peso"},code:"MX",population:"130M+",neighbors:{tr:"ABD, Guatemala",en:"USA, Guatemala"}},
+    {name:{tr:"Kanada",en:"Canada"},flag:"\uD83C\uDDE8\uD83C\uDDE6",capital:{tr:"Ottawa",en:"Ottawa"},food:"\uD83E\uDD5E Akcaagac Surubu",famous:{tr:"Niagara Selalesi",en:"Niagara Falls"},landmark:{tr:"CN Kulesi",en:"CN Tower"},language:{tr:"Ingilizce & Fransizca",en:"English & French"},currency:{tr:"Kanada Dolari",en:"Canadian Dollar"},code:"CA"},
+    {name:{tr:"Arjantin",en:"Argentina"},flag:"\uD83C\uDDE6\uD83C\uDDF7",capital:{tr:"Buenos Aires",en:"Buenos Aires"},food:"\uD83E\uDD69 Asado",famous:{tr:"Tango",en:"Tango"},landmark:{tr:"Iguazu Selalesi",en:"Iguazu Falls"},language:{tr:"Ispanyolca",en:"Spanish"},currency:{tr:"Peso",en:"Peso"},code:"AR"},
+    {name:{tr:"Peru",en:"Peru"},flag:"\uD83C\uDDF5\uD83C\uDDEA",capital:{tr:"Lima",en:"Lima"},food:"\uD83D\uDC1F Ceviche",famous:{tr:"Machu Picchu",en:"Machu Picchu"},landmark:{tr:"Machu Picchu",en:"Machu Picchu"},language:{tr:"Ispanyolca",en:"Spanish"},currency:{tr:"Sol",en:"Sol"},code:"PE"},
+  ],
+  oceania:[
+    {name:{tr:"Avustralya",en:"Australia"},flag:"\uD83C\uDDE6\uD83C\uDDFA",capital:{tr:"Kanberra",en:"Canberra"},food:"\uD83E\uDD67 Vegemite",famous:{tr:"Kanguru & Koala",en:"Kangaroo & Koala"},landmark:{tr:"Sydney Opera",en:"Sydney Opera House"},language:{tr:"Ingilizce",en:"English"},currency:{tr:"Avust. Dolari",en:"AUD"},code:"AU",population:"26M+",neighbors:{tr:"Ada kitasi",en:"Island continent"}},
+    {name:{tr:"Yeni Zelanda",en:"New Zealand"},flag:"\uD83C\uDDF3\uD83C\uDDFF",capital:{tr:"Wellington",en:"Wellington"},food:"\uD83E\uDD5D Kivi",famous:{tr:"Hobbit & Haka",en:"Hobbiton & Haka"},landmark:{tr:"Milford Sound",en:"Milford Sound"},language:{tr:"Ingilizce & Maori",en:"English & Maori"},currency:{tr:"NZ Dolari",en:"NZD"},code:"NZ"},
+    {name:{tr:"Fiji",en:"Fiji"},flag:"\uD83C\uDDEB\uD83C\uDDEF",capital:{tr:"Suva",en:"Suva"},food:"\uD83E\uDD65 Kokoda",famous:{tr:"Tropikal Adalar",en:"Tropical Islands"},landmark:{tr:"Mercan Resifleri",en:"Coral Reefs"},language:{tr:"Ingilizce",en:"English"},currency:{tr:"Fiji Dolari",en:"FJD"},code:"FJ"},
+    {name:{tr:"Papua Y. Gine",en:"Papua New Guinea"},flag:"\uD83C\uDDF5\uD83C\uDDEC",capital:{tr:"Port Moresby",en:"Port Moresby"},food:"\uD83C\uDF60 Tatli Patates",famous:{tr:"800+ Kabile",en:"800+ Tribes"},landmark:{tr:"Kokoda Yolu",en:"Kokoda Track"},language:{tr:"Tok Pisin",en:"Tok Pisin"},currency:{tr:"Kina",en:"Kina"},code:"PG"},
+  ]
+};
+
+// ==================== MATH QUESTIONS (5-6. sinif) ====================
+function generateMathQuestions(count, diff) {
+  const qs = [];
+  const generators = {
+    easy: [genAddSub, genMultSimple, genFractionSimple, genPercentSimple, genGeometrySimple],
+    medium: [genMultDiv, genFractionOp, genPercentMid, genGeometryMid, genDecimal, genRatio],
+    hard: [genFractionHard, genPercentHard, genGeometryHard, genAlgebra, genExponent, genLCMGCD]
+  };
+  const gens = generators[diff];
+  for (let i = 0; i < count; i++) {
+    const gen = gens[Math.floor(Math.random()*gens.length)];
+    qs.push(gen());
+  }
+  return qs;
+}
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function genAddSub(){const a=rnd(50,500),b=rnd(50,500);const op=Math.random()>0.5;const q=op?`${a} + ${b} = ?`:`${a+b} - ${b} = ?`;const ans=op?a+b:a;const opts=makeOpts(ans,4);return{question:q,answer:ans,options:opts,label:t('mathQ')};}
+function genMultSimple(){const a=rnd(3,12),b=rnd(3,12);const ans=a*b;const opts=makeOpts(ans,4);return{question:`${a} x ${b} = ?`,answer:ans,options:opts,label:t('mathQ')};}
+function genMultDiv(){const a=rnd(12,25),b=rnd(3,12);if(Math.random()>0.5){const ans=a*b;const opts=makeOpts(ans,4);return{question:`${a} x ${b} = ?`,answer:ans,options:opts,label:t('mathQ')};}else{const product=a*b;const ans=a;const opts=makeOpts(ans,4);return{question:`${product} \u00F7 ${b} = ?`,answer:ans,options:opts,label:t('mathQ')};}}
+function genFractionSimple(){const d=rnd(2,6),n=rnd(1,d-1);const d2=rnd(2,6),n2=rnd(1,d2-1);const lcd=lcm(d,d2);const sum_n=n*(lcd/d)+n2*(lcd/d2);const g=gcd(sum_n,lcd);const rn=sum_n/g,rd=lcd/g;const ans=`${rn}/${rd}`;const opts=[ans];while(opts.length<4){const fn=rnd(1,rd*2-1),fd=rd;const s=`${fn}/${fd}`;if(!opts.includes(s))opts.push(s);}shuffle(opts);return{question:`${n}/${d} + ${n2}/${d2} = ?`,answer:ans,options:opts,label:t('mathQ'),isText:true};}
+function genFractionOp(){const d=rnd(2,8),n=rnd(1,d*2);const mult=rnd(2,5);const ans_n=n*mult,ans_d=d;const g2=gcd(ans_n,ans_d);const rn=ans_n/g2,rd=ans_d/g2;const ans=rd===1?`${rn}`:`${rn}/${rd}`;const opts=[ans];while(opts.length<4){const fn=rnd(1,rn+5),fd=rd||1;const s=fd===1?`${fn}`:`${fn}/${fd}`;if(!opts.includes(s))opts.push(s);}shuffle(opts);return{question:`${n}/${d} x ${mult} = ?`,answer:ans,options:opts,label:t('mathQ'),isText:true};}
+function genFractionHard(){const w=rnd(1,3),n=rnd(1,5),d=rnd(2,6);const imp=(w*d+n);const g2=gcd(imp,d);const ans=`${imp/g2}/${d/g2}`;const display=`${w} ${n}/${d}`;const opts=[ans];while(opts.length<4){const fn=rnd(2,imp+4),fd=d/g2;const s=`${fn}/${fd}`;if(!opts.includes(s))opts.push(s);}shuffle(opts);const l=currentLang;const q=l==='tr'?`${display} kesrini bilesik kesir olarak yaz`:`Convert ${display} to improper fraction`;return{question:q,answer:ans,options:opts,label:t('mathQ'),isText:true};}
+function genPercentSimple(){const base=rnd(2,10)*10;const pct=[10,20,25,50][rnd(0,3)];const ans=base*pct/100;const opts=makeOpts(ans,4);return{question:`${base}'${currentLang==='tr'?'in':'of'} %${pct}'${currentLang==='tr'?'i':''}  = ?`,answer:ans,options:opts,label:t('mathQ')};}
+function genPercentMid(){const base=rnd(5,20)*10;const pct=rnd(1,9)*5;const ans=base*pct/100;const opts=makeOpts(ans,4);return{question:`${base} x %${pct} = ?`,answer:ans,options:opts,label:t('mathQ')};}
+function genPercentHard(){const part=rnd(2,8)*5;const whole=rnd(5,20)*10;while(whole<=part)whole=rnd(5,20)*10;const ans=Math.round(part/whole*100);const opts=makeOpts(ans,4);const q=currentLang==='tr'?`${part}, ${whole}'in yuzde kaci?`:`${part} is what % of ${whole}?`;return{question:q,answer:ans,options:opts,label:t('mathQ'),suffix:'%'};}
+function genGeometrySimple(){const a=rnd(3,12),b=rnd(3,12);const ans=a*b;const opts=makeOpts(ans,4);const q=currentLang==='tr'?`Kenar uzunluklari ${a} cm ve ${b} cm olan dikdortgenin alani?`:`Area of rectangle ${a}cm x ${b}cm?`;return{question:q,answer:ans,options:opts,label:t('mathQ'),suffix:' cm\u00B2'};}
+function genGeometryMid(){const a=rnd(4,15),h=rnd(3,10);const ans=a*h/2;const opts=makeOpts(ans,4);const q=currentLang==='tr'?`Tabani ${a} cm, yuksekligi ${h} cm olan ucgenin alani?`:`Triangle area: base ${a}cm, height ${h}cm?`;return{question:q,answer:ans,options:opts,label:t('mathQ'),suffix:' cm\u00B2'};}
+function genGeometryHard(){const r=rnd(2,10);const ans=Math.round(2*Math.PI*r*10)/10;const opts=[ans+''];while(opts.length<4){const v=(Math.round((ans+(Math.random()-0.5)*ans*0.6)*10)/10)+'';if(!opts.includes(v)&&parseFloat(v)>0)opts.push(v);}shuffle(opts);const q=currentLang==='tr'?`Yaricapi ${r} cm olan dairenin cevresi? (\u03C0=3.14)`:`Circumference of circle r=${r}cm? (\u03C0=3.14)`;return{question:q,answer:ans+'',options:opts,label:t('mathQ'),isText:true,suffix:' cm'};}
+function genDecimal(){const a=rnd(1,20)/10,b=rnd(1,20)/10;const ans=Math.round((a+b)*100)/100;const opts=makeOpts(ans,4,true);return{question:`${a} + ${b} = ?`,answer:ans,options:opts,label:t('mathQ')};}
+function genRatio(){const a=rnd(2,6),b=rnd(2,6),mult=rnd(2,5);const ans=b*mult;const opts=makeOpts(ans,4);const q=currentLang==='tr'?`${a}/${b} = ${a*mult}/? \u2192 ? = ?`:`${a}/${b} = ${a*mult}/? \u2192 ? = ?`;return{question:q,answer:ans,options:opts,label:t('mathQ')};}
+function genAlgebra(){const a=rnd(2,8),b=rnd(3,20);const ans=rnd(2,10);const result=a*ans+b;const opts=makeOpts(ans,4);const q=`${a}x + ${b} = ${result}  \u2192  x = ?`;return{question:q,answer:ans,options:opts,label:t('mathQ')};}
+function genExponent(){const base=rnd(2,9),exp=rnd(2,3);const ans=Math.pow(base,exp);const opts=makeOpts(ans,4);const sup=exp===2?'\u00B2':'\u00B3';return{question:`${base}${sup} = ?`,answer:ans,options:opts,label:t('mathQ')};}
+function genLCMGCD(){if(Math.random()>0.5){const a=rnd(4,15),b=rnd(4,15);const ans=gcd(a,b);const opts=makeOpts(ans,4);const q=currentLang==='tr'?`EBOB(${a}, ${b}) = ?`:`GCD(${a}, ${b}) = ?`;return{question:q,answer:ans,options:opts,label:t('mathQ')};}else{const a=rnd(3,12),b=rnd(3,12);const ans=lcm(a,b);const opts=makeOpts(ans,4);const q=currentLang==='tr'?`EKOK(${a}, ${b}) = ?`:`LCM(${a}, ${b}) = ?`;return{question:q,answer:ans,options:opts,label:t('mathQ')};}}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a;}
+function lcm(a,b){return Math.abs(a*b)/gcd(a,b);}
+function makeOpts(ans,count,isDecimal){
+  const opts=[ans];
+  let tries=0;
+  while(opts.length<count&&tries<50){
+    let v;
+    if(isDecimal){v=Math.round((ans+(Math.random()-0.5)*Math.max(ans*0.8,2))*100)/100;}
+    else{v=ans+rnd(-Math.max(Math.floor(ans*0.4),2),Math.max(Math.floor(ans*0.4),2));}
+    if(v>0&&!opts.includes(v))opts.push(v);
+    tries++;
+  }
+  while(opts.length<count)opts.push(ans+opts.length);
+  shuffle(opts);
+  return opts;
+}
+
+// ==================== HARRY POTTER QUESTIONS ====================
+const HP_QUESTIONS = [
+  // Easy
+  {q:{tr:"Harry Potter'in en yakin iki arkadasi kimdir?",en:"Who are Harry's two best friends?"},a:{tr:"Ron ve Hermione",en:"Ron & Hermione"},w:[{tr:"Draco ve Neville",en:"Draco & Neville"},{tr:"Luna ve Ginny",en:"Luna & Ginny"},{tr:"Fred ve George",en:"Fred & George"}],diff:"easy",emoji:"\uD83E\uDDD9"},
+  {q:{tr:"Harry Potter hangi binaya secilmistir?",en:"Which house was Harry sorted into?"},a:{tr:"Gryffindor",en:"Gryffindor"},w:[{tr:"Slytherin",en:"Slytherin"},{tr:"Ravenclaw",en:"Ravenclaw"},{tr:"Hufflepuff",en:"Hufflepuff"}],diff:"easy",emoji:"\uD83E\uDD81"},
+  {q:{tr:"Hogwarts'a ogrencileri ne tasir?",en:"What takes students to Hogwarts?"},a:{tr:"Hogwarts Ekspresi",en:"Hogwarts Express"},w:[{tr:"Ucarak araba",en:"Flying car"},{tr:"Atesbolugu",en:"Floo powder"},{tr:"Cisimlenme",en:"Apparition"}],diff:"easy",emoji:"\uD83D\uDE82"},
+  {q:{tr:"Harry'nin baykusunun adi nedir?",en:"What is Harry's owl's name?"},a:{tr:"Hedwig",en:"Hedwig"},w:[{tr:"Errol",en:"Errol"},{tr:"Pigwidgeon",en:"Pigwidgeon"},{tr:"Scabbers",en:"Scabbers"}],diff:"easy",emoji:"\uD83E\uDD89"},
+  {q:{tr:"Quidditch'te altin top hangisidir?",en:"What is the golden ball in Quidditch?"},a:{tr:"Altin Snitch",en:"Golden Snitch"},w:[{tr:"Quaffle",en:"Quaffle"},{tr:"Bludger",en:"Bludger"},{tr:"Portkey",en:"Portkey"}],diff:"easy",emoji:"\u2728"},
+  {q:{tr:"Hogwarts'in muduru kimdir?",en:"Who is the headmaster of Hogwarts?"},a:{tr:"Albus Dumbledore",en:"Albus Dumbledore"},w:[{tr:"Severus Snape",en:"Severus Snape"},{tr:"Minerva McGonagall",en:"McGonagall"},{tr:"Hagrid",en:"Hagrid"}],diff:"easy",emoji:"\uD83E\uDDD9\u200D\u2642\uFE0F"},
+  {q:{tr:"Harry'nin alnindaki iz neye benzer?",en:"What shape is Harry's scar?"},a:{tr:"Simsek",en:"Lightning bolt"},w:[{tr:"Yildiz",en:"Star"},{tr:"Ay",en:"Moon"},{tr:"Yilan",en:"Snake"}],diff:"easy",emoji:"\u26A1"},
+  {q:{tr:"Voldemort'un gercek adi nedir?",en:"What is Voldemort's real name?"},a:{tr:"Tom Riddle",en:"Tom Riddle"},w:[{tr:"Severus Snape",en:"Severus Snape"},{tr:"Sirius Black",en:"Sirius Black"},{tr:"Lucius Malfoy",en:"Lucius Malfoy"}],diff:"easy",emoji:"\uD83D\uDC00"},
+  // Medium
+  {q:{tr:"Hermione'nin Patronus'u hangi hayvandir?",en:"What is Hermione's Patronus?"},a:{tr:"Su samuru (Otter)",en:"Otter"},w:[{tr:"Geyik",en:"Stag"},{tr:"Kopek",en:"Dog"},{tr:"Tavsan",en:"Hare"}],diff:"medium",emoji:"\uD83E\uDD9A"},
+  {q:{tr:"Felsefe Tasi'ni koruyan uc basli kopegin adi?",en:"Name of the three-headed dog?"},a:{tr:"Fluffy",en:"Fluffy"},w:[{tr:"Fang",en:"Fang"},{tr:"Buckbeak",en:"Buckbeak"},{tr:"Norbert",en:"Norbert"}],diff:"medium",emoji:"\uD83D\uDC36"},
+  {q:{tr:"Sirlar Odasi'ndaki canavar nedir?",en:"What creature is in the Chamber of Secrets?"},a:{tr:"Basilisk",en:"Basilisk"},w:[{tr:"Ejderha",en:"Dragon"},{tr:"Troll",en:"Troll"},{tr:"Dementor",en:"Dementor"}],diff:"medium",emoji:"\uD83D\uDC0D"},
+  {q:{tr:"Sirius Black, Harry'nin nesidir?",en:"What is Sirius Black to Harry?"},a:{tr:"Vaftiz babasi",en:"Godfather"},w:[{tr:"Amcasi",en:"Uncle"},{tr:"Kuzeni",en:"Cousin"},{tr:"Ogretmeni",en:"Teacher"}],diff:"medium",emoji:"\uD83D\uDC3A"},
+  {q:{tr:"Olum Yadigarlari kac tanedir?",en:"How many Deathly Hallows are there?"},a:{tr:"3",en:"3"},w:[{tr:"4",en:"4"},{tr:"7",en:"7"},{tr:"2",en:"2"}],diff:"medium",emoji:"\u25B3"},
+  {q:{tr:"Iksir dersi ogretmeni kimdir?",en:"Who teaches Potions class?"},a:{tr:"Severus Snape",en:"Severus Snape"},w:[{tr:"McGonagall",en:"McGonagall"},{tr:"Flitwick",en:"Flitwick"},{tr:"Lupin",en:"Lupin"}],diff:"medium",emoji:"\u2697\uFE0F"},
+  {q:{tr:"Dobby nedir?",en:"What is Dobby?"},a:{tr:"Ev cini (House-elf)",en:"House-elf"},w:[{tr:"Goblin",en:"Goblin"},{tr:"Centaur",en:"Centaur"},{tr:"Ghost",en:"Ghost"}],diff:"medium",emoji:"\uD83E\uDDCC"},
+  {q:{tr:"Weasley ailesinin kac cocugu var?",en:"How many Weasley children are there?"},a:{tr:"7",en:"7"},w:[{tr:"5",en:"5"},{tr:"6",en:"6"},{tr:"8",en:"8"}],diff:"medium",emoji:"\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66"},
+  // Hard
+  {q:{tr:"Voldemort kac Hortkuluk (Horcrux) yapmistir?",en:"How many Horcruxes did Voldemort make?"},a:{tr:"7",en:"7"},w:[{tr:"5",en:"5"},{tr:"6",en:"6"},{tr:"8",en:"8"}],diff:"hard",emoji:"\uD83D\uDC80"},
+  {q:{tr:"Buyuk Cadi Savasmasi hangi filmde gerceklesir?",en:"In which film does the Battle of Hogwarts occur?"},a:{tr:"Olum Yadigarlari 2",en:"Deathly Hallows Part 2"},w:[{tr:"Zumruduanka Yoldasligi",en:"Order of Phoenix"},{tr:"Melez Prens",en:"Half-Blood Prince"},{tr:"Olum Yadigarlari 1",en:"Deathly Hallows Part 1"}],diff:"hard",emoji:"\u2694\uFE0F"},
+  {q:{tr:"Elder Asa'nin (Murver Asasi) son gercek sahibi kim?",en:"Who is the true master of the Elder Wand?"},a:{tr:"Harry Potter",en:"Harry Potter"},w:[{tr:"Dumbledore",en:"Dumbledore"},{tr:"Voldemort",en:"Voldemort"},{tr:"Draco Malfoy",en:"Draco Malfoy"}],diff:"hard",emoji:"\uD83E\uDE84"},
+  {q:{tr:"Snape'in Patronus'u nedir ve neden?",en:"What is Snape's Patronus?"},a:{tr:"Disi geyik (Lily icin)",en:"Doe (for Lily)"},w:[{tr:"Yilan",en:"Snake"},{tr:"Kurt",en:"Wolf"},{tr:"Kartal",en:"Eagle"}],diff:"hard",emoji:"\uD83E\uDD8C"},
+  {q:{tr:"Nicolas Flamel kac yasinda?",en:"How old is Nicolas Flamel?"},a:{tr:"665",en:"665"},w:[{tr:"450",en:"450"},{tr:"999",en:"999"},{tr:"312",en:"312"}],diff:"hard",emoji:"\uD83E\uDDEA"},
+  {q:{tr:"Boggart neye donusur?",en:"What does a Boggart turn into?"},a:{tr:"En buyuk korkuna",en:"Your greatest fear"},w:[{tr:"Bir golgene",en:"A shadow"},{tr:"Bir aynaya",en:"A mirror"},{tr:"Gorulmez olur",en:"Invisible"}],diff:"hard",emoji:"\uD83D\uDC7B"},
+  {q:{tr:"Marauder's Map'i kimler yapmistir?",en:"Who created the Marauder's Map?"},a:{tr:"Moony, Wormtail, Padfoot, Prongs",en:"Moony, Wormtail, Padfoot, Prongs"},w:[{tr:"Fred ve George",en:"Fred & George"},{tr:"Dumbledore",en:"Dumbledore"},{tr:"Snape ve Lily",en:"Snape & Lily"}],diff:"hard",emoji:"\uD83D\uDDFA\uFE0F"},
+];
+
+// ==================== STRANGER THINGS QUESTIONS ====================
+const ST_QUESTIONS = [
+  // Easy
+  {q:{tr:"Stranger Things hangi kasabada gecer?",en:"In which town is Stranger Things set?"},a:{tr:"Hawkins, Indiana",en:"Hawkins, Indiana"},w:[{tr:"Derry, Maine",en:"Derry, Maine"},{tr:"Springfield",en:"Springfield"},{tr:"Twin Peaks",en:"Twin Peaks"}],diff:"easy",emoji:"\uD83C\uDFD8\uFE0F"},
+  {q:{tr:"Eleven'in en unlu gucu nedir?",en:"What is Eleven's most famous power?"},a:{tr:"Telekinezi (cisim hareket)",en:"Telekinesis"},w:[{tr:"Gorunmezlik",en:"Invisibility"},{tr:"Ucma",en:"Flying"},{tr:"Zaman durdurma",en:"Time stop"}],diff:"easy",emoji:"\uD83E\uDDE0"},
+  {q:{tr:"Ters Dunya (Upside Down) nedir?",en:"What is the Upside Down?"},a:{tr:"Karanlik paralel boyut",en:"Dark parallel dimension"},w:[{tr:"Bir gezegen",en:"A planet"},{tr:"Bir ruya",en:"A dream"},{tr:"Gecmis zaman",en:"Past time"}],diff:"easy",emoji:"\uD83C\uDF0C"},
+  {q:{tr:"Cocuklarin en sevdigi oyun nedir?",en:"What game do the kids love to play?"},a:{tr:"Dungeons & Dragons",en:"Dungeons & Dragons"},w:[{tr:"Satranc",en:"Chess"},{tr:"Monopoly",en:"Monopoly"},{tr:"Risk",en:"Risk"}],diff:"easy",emoji:"\uD83C\uDFB2"},
+  {q:{tr:"1. sezonda kaybolan cocugun adi?",en:"Name of the boy who disappears in season 1?"},a:{tr:"Will Byers",en:"Will Byers"},w:[{tr:"Mike Wheeler",en:"Mike Wheeler"},{tr:"Dustin Henderson",en:"Dustin Henderson"},{tr:"Lucas Sinclair",en:"Lucas Sinclair"}],diff:"easy",emoji:"\uD83D\uDD26"},
+  {q:{tr:"Eleven en cok neyi sever?",en:"What does Eleven love the most?"},a:{tr:"Eggo waffle",en:"Eggo waffles"},w:[{tr:"Pizza",en:"Pizza"},{tr:"Cikolata",en:"Chocolate"},{tr:"Dondurma",en:"Ice cream"}],diff:"easy",emoji:"\uD83E\uDDC7"},
+  {q:{tr:"Dizi hangi on yilda gecmektedir? (Sezon 1)",en:"Which decade is Season 1 set in?"},a:{tr:"1980'ler",en:"1980s"},w:[{tr:"1970'ler",en:"1970s"},{tr:"1990'lar",en:"1990s"},{tr:"2000'ler",en:"2000s"}],diff:"easy",emoji:"\uD83D\uDCFC"},
+  // Medium
+  {q:{tr:"Demogorgon'un adi nereden gelir?",en:"Where does the Demogorgon get its name?"},a:{tr:"Dungeons & Dragons canavari",en:"D&D monster"},w:[{tr:"Yunan mitolojisi",en:"Greek mythology"},{tr:"Bir bilim adami",en:"A scientist"},{tr:"Bir sehir",en:"A city"}],diff:"medium",emoji:"\uD83D\uDC79"},
+  {q:{tr:"Hopper'in meslegi nedir?",en:"What is Hopper's job?"},a:{tr:"Polis sefi",en:"Police chief"},w:[{tr:"Ogretmen",en:"Teacher"},{tr:"Doktor",en:"Doctor"},{tr:"Asker",en:"Soldier"}],diff:"medium",emoji:"\uD83D\uDC6E"},
+  {q:{tr:"Eleven'in gercek adi nedir?",en:"What is Eleven's real name?"},a:{tr:"Jane Ives",en:"Jane Ives"},w:[{tr:"Sarah Hopper",en:"Sarah Hopper"},{tr:"Nancy Wheeler",en:"Nancy Wheeler"},{tr:"Max Mayfield",en:"Max Mayfield"}],diff:"medium",emoji:"\uD83D\uDC67"},
+  {q:{tr:"Will ile iletisim kurmak icin ne kullanilir?",en:"What is used to communicate with Will?"},a:{tr:"Isiklar (Christmas lights)",en:"Christmas lights"},w:[{tr:"Telefon",en:"Telephone"},{tr:"Radyo",en:"Radio"},{tr:"Mektup",en:"Letter"}],diff:"medium",emoji:"\uD83D\uDCA1"},
+  {q:{tr:"2. sezondaki yeni canavar hangisi?",en:"What's the new monster in Season 2?"},a:{tr:"Mind Flayer (Zihin Yiyici)",en:"Mind Flayer"},w:[{tr:"Demogorgon",en:"Demogorgon"},{tr:"Demodogs",en:"Demodogs"},{tr:"Vecna",en:"Vecna"}],diff:"medium",emoji:"\uD83D\uDC19"},
+  {q:{tr:"Steve Harrington'in lakabi ne olmustur?",en:"What nickname did Steve earn?"},a:{tr:"Bebek bakicisi (Babysitter)",en:"The Babysitter"},w:[{tr:"Kral",en:"The King"},{tr:"Kahraman",en:"The Hero"},{tr:"Savasci",en:"The Fighter"}],diff:"medium",emoji:"\uD83E\uDDD1"},
+  {q:{tr:"Dustin'in evcil hayvaninin adi?",en:"What is Dustin's pet's name?"},a:{tr:"Dart",en:"Dart"},w:[{tr:"Mews",en:"Mews"},{tr:"Chester",en:"Chester"},{tr:"Spike",en:"Spike"}],diff:"medium",emoji:"\uD83D\uDC09"},
+  // Hard
+  {q:{tr:"Vecna'nin gercek kimligi kimdir?",en:"Who is Vecna's true identity?"},a:{tr:"Henry Creel / One",en:"Henry Creel / One"},w:[{tr:"Dr. Brenner",en:"Dr. Brenner"},{tr:"Billy Hargrove",en:"Billy Hargrove"},{tr:"Bob Newby",en:"Bob Newby"}],diff:"hard",emoji:"\uD83E\uDDB9"},
+  {q:{tr:"Hawkins Ulusal Laboratuvari hangi programa baglidir?",en:"What program is Hawkins Lab connected to?"},a:{tr:"MKUltra",en:"MKUltra"},w:[{tr:"NASA",en:"NASA"},{tr:"FBI",en:"FBI"},{tr:"Area 51",en:"Area 51"}],diff:"hard",emoji:"\uD83E\uDDEA"},
+  {q:{tr:"Max'i kurtaran sarki hangisi?",en:"What song saves Max?"},a:{tr:"Running Up That Hill - Kate Bush",en:"Running Up That Hill - Kate Bush"},w:[{tr:"Thriller - Michael Jackson",en:"Thriller - MJ"},{tr:"Every Breath You Take - Police",en:"Every Breath - Police"},{tr:"Africa - Toto",en:"Africa - Toto"}],diff:"hard",emoji:"\uD83C\uDFB5"},
+  {q:{tr:"Kac tane numarali deneyli cocuk vardir?",en:"How many numbered test subjects exist?"},a:{tr:"En az 11 (Eleven=011)",en:"At least 11 (Eleven=011)"},w:[{tr:"5",en:"5"},{tr:"3",en:"3"},{tr:"20",en:"20"}],diff:"hard",emoji:"\uD83D\uDD22"},
+  {q:{tr:"Ters Dunya'nin atmosferi neye benzer?",en:"What does the Upside Down's atmosphere resemble?"},a:{tr:"Zehirli sporlar ve soguk",en:"Toxic spores and cold"},w:[{tr:"Sicak ve kumlu",en:"Hot and sandy"},{tr:"Normal ama karanlik",en:"Normal but dark"},{tr:"Suyun altinda",en:"Underwater"}],diff:"hard",emoji:"\u2623\uFE0F"},
+  {q:{tr:"Bob Newby'nin meslegi neydi?",en:"What was Bob Newby's job?"},a:{tr:"Radio Shack muduru",en:"Radio Shack manager"},w:[{tr:"Ogretmen",en:"Teacher"},{tr:"Muhendis",en:"Engineer"},{tr:"Gazeteci",en:"Journalist"}],diff:"hard",emoji:"\uD83D\uDCBB"},
+];
+
+function generateFandomQuestions(source, count, diff) {
+  const pool = source.filter(q => {
+    if(diff==='easy') return q.diff==='easy';
+    if(diff==='medium') return q.diff==='easy'||q.diff==='medium';
+    return true; // hard: all
+  });
+  shuffle(pool);
+  return pool.slice(0,Math.min(count,pool.length)).map(q => {
+    const l = currentLang;
+    const opts = [q.a, ...q.w];
+    shuffle(opts);
+    return {
+      type:'fandom',
+      question: q.q[l]||q.q.en,
+      answer: q.a[l]||q.a.en,
+      options: opts.map(o => o[l]||o.en),
+      emoji: q.emoji,
+      label: source===HP_QUESTIONS ? '\u26A1 HARRY POTTER' : '\uD83D\uDCA1 STRANGER THINGS'
+    };
+  });
+}
+
+// ==================== DIFFICULTY CONFIG ====================
+const DIFF_CONFIG={
+  easy:{clues:['flag','food','famous','landmark'],optionCount:4},
+  medium:{clues:['flag','silhouette','food','famous','capital','landmark','currency'],optionCount:4},
+  hard:{clues:['silhouette','capital','language','currency','population','neighbors'],optionCount:6},
+};
+
+// ==================== GAME STATE ====================
+let playerName='',questionCount=10,difficulty='medium',selectedCats=new Set(),currentContinent='',questions=[],currentQ=0,score=0,correctCount=0,fishes=[],answeredThisQ=false;
+
+// ==================== CLUE TYPES ====================
+function getClue(country,type){
+  const l=currentLang,cc=country.code.toLowerCase();
+  switch(type){
+    case 'flag':return{label:t('flag'),question:t('clueFlag'),display:`<img class="flag-img" src="https://flagcdn.com/w320/${cc}.png" alt="flag" onerror="this.outerHTML='<div class=flag-display>${country.flag}</div>'">`};
+    case 'silhouette':return{label:t('silhouette'),question:t('clueSilhouette'),display:`<img class="silhouette-img" src="https://raw.githubusercontent.com/djaiss/mapsicon/master/all/${cc}/vector.svg" alt="shape" onerror="this.src='https://flagcdn.com/w320/${cc}.png';this.className='flag-img'">`};
+    case 'food':return{label:t('food'),question:t('clueFood'),display:`<div class="food-emoji">${country.food}</div>`};
+    case 'famous':return{label:t('famous'),question:t('clueFamous'),display:`<div style="font-size:1.6rem">${country.famous[l]||country.famous.en}</div>`};
+    case 'capital':return{label:t('capital'),question:t('clueCapital',country.capital[l]||country.capital.en),display:`<div style="font-size:2.2rem">\uD83C\uDFDB\uFE0F</div>`};
+    case 'language':return{label:t('language'),question:t('clueLanguage',country.language[l]||country.language.en),display:`<div style="font-size:2.2rem">\uD83D\uDDE3\uFE0F</div>`};
+    case 'landmark':return{label:t('landmark'),question:t('clueLandmark'),display:`<div style="font-size:1.6rem">\uD83C\uDFDB\uFE0F ${country.landmark[l]||country.landmark.en}</div>`};
+    case 'currency':return{label:t('currency'),question:t('clueCurrency',country.currency[l]||country.currency.en),display:`<div style="font-size:2.2rem">\uD83D\uDCB0</div>`};
+    case 'population':if(country.population)return{label:t('population'),question:t('cluePopulation',country.population),display:`<div style="font-size:2.5rem">\uD83D\uDC65</div>`};return getClue(country,'famous');
+    case 'neighbors':if(country.neighbors)return{label:t('neighbors'),question:t('clueNeighbors'),display:`<div class="hint-text">\uD83D\uDDFA\uFE0F ${country.neighbors[l]||country.neighbors.en}</div>`};return getClue(country,'capital');
+    default:return getClue(country,'flag');
+  }
+}
+
+// ==================== NAVIGATION ====================
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function goToSetup(){playerName=document.getElementById('player-name').value.trim()||'Kasif';showScreen('setup-screen');document.getElementById('setup-greeting').textContent=`${playerName}!`;}
+function selectCount(n,btn){questionCount=n;document.querySelectorAll('.q-option').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');checkReady();}
+function selectDiff(d,btn){difficulty=d;document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');checkReady();}
+function toggleCat(c,btn){
+  if(selectedCats.has(c)){selectedCats.delete(c);btn.classList.remove('selected');}
+  else{selectedCats.add(c);btn.classList.add('selected');}
+  checkReady();
+}
+function checkReady(){
+  const ok=document.querySelector('.q-option.selected')&&document.querySelector('.diff-btn.selected')&&selectedCats.size>0;
+  document.getElementById('go-next-btn').style.display=ok?'inline-block':'none';
+}
+let selectedGender='girl';
+function setupNext(){
+  showScreen('charselect-screen');
+}
+function pickChar(gender){
+  selectedGender=gender;
+  if(selectedCats.has('geo'))showScreen('continent-screen');
+  else startQuiz('none');
+}
+
+// ==================== QUIZ LOGIC ====================
+function startQuiz(continent){
+  currentContinent=continent;score=0;currentQ=0;correctCount=0;answeredThisQ=false;
+  // Always activate dressup
+  initDressup();
+  document.getElementById('score').textContent='0';
+  const badge=document.getElementById('diff-badge');
+  const dl={easy:{tr:'KOLAY',en:'EASY'},medium:{tr:'ORTA',en:'MEDIUM'},hard:{tr:'ZOR',en:'HARD'}};
+  badge.textContent=dl[difficulty][currentLang]||dl[difficulty].en;
+  badge.className='diff-badge '+difficulty;
+
+  questions=[];
+  const diff=DIFF_CONFIG;
+
+  // Determine how many of each category
+  const cats=[...selectedCats];
+  const catCount=cats.length;
+  const perCat=Math.floor(questionCount/catCount);
+  let remainder=questionCount-perCat*catCount;
+  let geoCount=0, mathCount=0, hpCount=0, stCount=0;
+  cats.forEach(c=>{
+    const n=perCat+(remainder>0?1:0);
+    if(remainder>0)remainder--;
+    if(c==='geo')geoCount=n;
+    else if(c==='math')mathCount=n;
+    else if(c==='hp')hpCount=n;
+    else if(c==='st')stCount=n;
+  });
+
+  // Geo questions
+  if(geoCount>0){
+    let pool=[];
+    if(continent==='all'||continent==='none')Object.values(COUNTRIES).forEach(a=>pool.push(...a));
+    else pool=[...COUNTRIES[continent]];
+    shuffle(pool);
+    const sel=pool.slice(0,Math.min(geoCount,pool.length));
+    const clues=diff[difficulty].clues;
+    const optCount=diff[difficulty].optionCount;
+    sel.forEach(country=>{
+      const ct=clues[Math.floor(Math.random()*clues.length)];
+      const wrongs=pool.filter(c=>c.code!==country.code);shuffle(wrongs);
+      const options=[country,...wrongs.slice(0,optCount-1)];shuffle(options);
+      questions.push({type:'geo',country,clueType:ct,options});
+    });
+  }
+
+  // Math questions
+  if(mathCount>0){
+    const mqs=generateMathQuestions(mathCount,difficulty);
+    mqs.forEach(mq=>questions.push({type:'math',mathData:mq}));
+  }
+
+  // Harry Potter questions
+  if(hpCount>0){
+    const hpqs=generateFandomQuestions(HP_QUESTIONS,hpCount,difficulty);
+    hpqs.forEach(q=>questions.push(q));
+  }
+
+  // Stranger Things questions
+  if(stCount>0){
+    const stqs=generateFandomQuestions(ST_QUESTIONS,stCount,difficulty);
+    stqs.forEach(q=>questions.push(q));
+  }
+
+  if(selectedCats.size>1)shuffle(questions);
+
+  showScreen('quiz-screen');
+  renderLeaderboard();
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answeredThisQ=false;
+  const q=questions[currentQ];
+  document.getElementById('q-counter').textContent=`${currentQ+1}/${questions.length}`;
+  document.getElementById('progress-fill').style.width=`${(currentQ/questions.length)*100}%`;
+  document.getElementById('next-btn').style.display='none';
+  const grid=document.getElementById('options-grid');
+  grid.innerHTML='';
+
+  if(q.type==='geo'){
+    const clue=getClue(q.country,q.clueType);
+    const l=currentLang;
+    document.getElementById('clue-type').textContent=clue.label;
+    document.getElementById('clue-content').innerHTML=`<div>${clue.question}</div>${clue.display}`;
+    grid.style.gridTemplateColumns=q.options.length>4?'1fr 1fr 1fr':'1fr 1fr';
+    q.options.forEach(opt=>{
+      const btn=document.createElement('button');btn.className='option-btn';
+      btn.textContent=opt.name[l]||opt.name.en;
+      btn.onclick=()=>handleAnswer(btn,opt.code===q.country.code,q.country.name[l]||q.country.name.en);
+      grid.appendChild(btn);
+    });
+  } else if(q.type==='math') {
+    const md=q.mathData;
+    document.getElementById('clue-type').textContent=md.label;
+    document.getElementById('clue-content').innerHTML=`<div class="math-display">${md.question}</div>`;
+    grid.style.gridTemplateColumns=md.options.length>4?'1fr 1fr 1fr':'1fr 1fr';
+    md.options.forEach(opt=>{
+      const btn=document.createElement('button');btn.className='option-btn';
+      const display=md.isText?opt:(opt+(md.suffix||''));
+      btn.textContent=display;
+      const isCorrect=md.isText?(opt===md.answer):(opt===md.answer);
+      btn.onclick=()=>handleAnswer(btn,isCorrect,md.isText?md.answer:(md.answer+(md.suffix||'')));
+      grid.appendChild(btn);
+    });
+  } else if(q.type==='fandom') {
+    document.getElementById('clue-type').textContent=q.label;
+    document.getElementById('clue-content').innerHTML=`<div style="font-size:3rem">${q.emoji}</div><div>${q.question}</div>`;
+    grid.style.gridTemplateColumns='1fr 1fr';
+    q.options.forEach(opt=>{
+      const btn=document.createElement('button');btn.className='option-btn';
+      btn.textContent=opt;
+      btn.onclick=()=>handleAnswer(btn,opt===q.answer,q.answer);
+      grid.appendChild(btn);
+    });
+  }
+}
+
+function handleAnswer(btn,isCorrect,correctText){
+  if(answeredThisQ)return;answeredThisQ=true;
+  const allBtns=document.querySelectorAll('.option-btn');
+  allBtns.forEach(b=>b.classList.add('disabled'));
+  if(isCorrect){
+    btn.classList.add('correct');correctCount++;
+    score=Math.round(correctCount/questions.length*100);
+    document.getElementById('score').textContent=score;
+    dropFood();createMiniConfetti(btn);
+  }else{
+    btn.classList.add('wrong');
+    allBtns.forEach(b=>{if(b.textContent==correctText)b.classList.add('reveal-correct');});
+  }
+  // Dressup: show choice after answer
+  if(dressupMode){showDressupChoice(isCorrect);}
+  document.getElementById('next-btn').style.display='inline-block';
+}
+
+function nextQuestion(){currentQ++;if(currentQ>=questions.length)showResults();else renderQuestion();}
+
+function showResults(){
+  showScreen('result-screen');
+  const pct=correctCount/questions.length;
+  let titleKey,stars;
+  if(pct>=0.9){titleKey='resultGreat';stars='\u2B50\u2B50\u2B50\u2B50\u2B50';}
+  else if(pct>=0.7){titleKey='resultGood';stars='\u2B50\u2B50\u2B50\u2B50';}
+  else if(pct>=0.5){titleKey='resultOk';stars='\u2B50\u2B50\u2B50';}
+  else{titleKey='resultTry';stars='\u2B50\u2B50';}
+  document.getElementById('result-title').textContent=t(titleKey,playerName);
+  document.getElementById('result-score').textContent=score+'/100';
+  const catNames=[...selectedCats].map(c=>c==='geo'?t('geo'):c==='math'?t('math'):c==='hp'?'HP':c==='st'?'ST':c).join('+');
+  document.getElementById('result-detail').textContent=`${correctCount}/${questions.length} ${t('questionsLabel')} | ${catNames} | ${difficulty.toUpperCase()}`;
+  document.getElementById('result-msg').textContent=t('scoreText',correctCount,questions.length);
+  document.getElementById('stars-display').textContent=stars;
+  if(pct>=0.7)bigConfetti();
+  for(let i=0;i<5;i++)setTimeout(()=>dropFood(),i*300);
+  saveScore();
+}
+
+function restart(){
+  showScreen('welcome-screen');
+  document.querySelectorAll('.q-option,.diff-btn,.cat-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('go-next-btn').style.display='none';
+  selectedCats.clear();
+}
+
+// ==================== LEADERBOARD ====================
+function getScores(){try{return JSON.parse(localStorage.getItem('arya_quiz_scores')||'[]');}catch(e){return[];}}
+function saveScore(){
+  const scores=getScores();
+  scores.push({name:playerName,score,correct:correctCount,total:questions.length,diff:difficulty,cat:[...selectedCats].join('+'),date:Date.now()});
+  // Sort: score desc, then more questions first (tiebreaker)
+  scores.sort((a,b)=>b.score-a.score||(b.total||0)-(a.total||0));
+  // Keep top 10
+  localStorage.setItem('arya_quiz_scores',JSON.stringify(scores.slice(0,10)));
+  renderLeaderboard();
+}
+function renderLeaderboard(){
+  const list=document.getElementById('lb-list');
+  if(!list)return;
+  const scores=getScores();
+  if(scores.length===0){list.innerHTML=`<div class="lb-empty">${t('noScores')}</div>`;return;}
+  const medals=['🥇','🥈','🥉'];
+  list.innerHTML=scores.slice(0,10).map((s,i)=>{
+    const rank=i<3?medals[i]:(i+1);
+    const cc=s.cat||'';const catIcon=cc.includes('geo')?'\uD83C\uDF0D':cc.includes('math')?'\uD83D\uDCD0':cc.includes('hp')?'\u26A1':cc.includes('st')?'\uD83D\uDCA1':'\uD83C\uDFB2';const multiIcon=cc.includes('+')?'\uD83C\uDFB2':catIcon;
+    return `<div class="lb-entry"><span class="lb-rank">${rank}</span><span class="lb-name">${s.name}</span><span class="lb-score">${s.score}</span><span class="lb-detail">${s.correct||'?'}/${s.total||'?'} ${multiIcon}</span></div>`;
+  }).join('');
+}
+
+// ==================== AQUARIUM ====================
+function initAquarium(){
+  const aq=document.getElementById('aquarium');
+  [8,22,55,72,88].forEach(p=>{const s=document.createElement('div');s.className='seaweed';s.style.left=p+'%';s.style.height=(35+Math.random()*45)+'px';s.style.animationDelay=Math.random()*2+'s';aq.appendChild(s);});
+  ['\uD83D\uDC1A','\u2B50','\uD83E\uDEB8','\uD83E\uDEA8'].forEach((d,i)=>{const e=document.createElement('div');e.className='coral-deco';e.style.left=[15,40,65,85][i]+'%';e.textContent=d;aq.appendChild(e);});
+  const tr=document.createElement('div');tr.className='treasure';tr.style.left='45%';tr.textContent='\uD83C\uDFF4\u200D\u2620\uFE0F';aq.appendChild(tr);
+  ['\uD83D\uDC20','\uD83D\uDC1F','\uD83D\uDC21','\uD83D\uDC20','\uD83D\uDC1F'].forEach(emoji=>{
+    const f=document.createElement('div');f.className='fish';
+    f.innerHTML=`<span class="fish-body" style="font-size:${1.6+Math.random()*0.7}rem">${emoji}</span><div class="fish-eat">nom!</div>`;
+    f.style.bottom=(30+Math.random()*90)+'px';f.style.left=(10+Math.random()*80)+'%';
+    f._speed=3+Math.random()*4;f._feeding=false;
+    aq.appendChild(f);fishes.push(f);swimFish(f);
+  });
+  setInterval(()=>{const b=document.createElement('div');b.className='bubble';b.style.width=b.style.height=(3+Math.random()*7)+'px';b.style.left=(10+Math.random()*80)+'%';b.style.bottom='28px';b.style.animationDuration=(2+Math.random()*3)+'s';aq.appendChild(b);setTimeout(()=>b.remove(),5000);},1800);
+}
+function swimFish(f){
+  if(f._feeding)return;
+  const go=()=>{
+    if(f._feeding)return;
+    const x=5+Math.random()*85,y=30+Math.random()*100,dur=f._speed;
+    const cx=parseFloat(f.style.left)||50;
+    f.style.transition=`left ${dur}s ease, bottom ${dur}s ease`;
+    f.style.transform=`scaleX(${x>cx?1:-1})`;
+    f.style.left=x+'%';f.style.bottom=y+'px';
+    f._timer=setTimeout(go,dur*1000+200);
+  };
+  f._timer=setTimeout(go,Math.random()*2000);
+}
+
+let foodDropX=50;
+function dropFood(){
+  const aq=document.getElementById('aquarium');
+  foodDropX=20+Math.random()*60;
+  for(let i=0;i<5;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');p.className='food-pellet';
+      const px=foodDropX+(Math.random()-0.5)*18;
+      p.style.left=px+'%';p.style.top='0px';p._st=performance.now();p._dur=1600+Math.random()*500;
+      aq.appendChild(p);
+      (function anim(now){
+        const prog=Math.min((now-p._st)/p._dur,1),y=prog*prog*160;
+        p.style.top=y+'px';p.style.opacity=prog>0.85?1-(prog-0.85)/0.15:1;
+        p.style.transform=`rotate(${prog*600}deg) scale(${1-prog*0.3})`;
+        if(prog<1)requestAnimationFrame(anim);else p.remove();
+      })(performance.now());
+    },i*90);
+  }
+  fishes.forEach((f,i)=>setTimeout(()=>feedFish(f),150+i*150));
+}
+function feedFish(f){
+  clearTimeout(f._timer);f._feeding=true;
+  const tx=foodDropX+(Math.random()-0.5)*10,ty=110+Math.random()*35;
+  const cx=parseFloat(f.style.left)||50;
+  f.style.transition='left 0.6s ease-in-out, bottom 0.6s ease-in-out';
+  f.style.transform=`scaleX(${tx>cx?1:-1})`;
+  f.style.left=tx+'%';f.style.bottom=ty+'px';
+  setTimeout(()=>{
+    const eat=f.querySelector('.fish-eat');
+    if(eat){eat.textContent=['nom!','yum!','mmm!','hap!','\uD83D\uDE0B'][rnd(0,4)];eat.style.display='block';eat.style.animation='none';void eat.offsetHeight;eat.style.animation='eatPop 0.8s ease forwards';setTimeout(()=>{eat.style.display='none';},800);}
+    f.animate([{transform:f.style.transform+' rotate(0) scale(1)'},{transform:f.style.transform+' rotate(12deg) scale(1.2)'},{transform:f.style.transform+' rotate(-12deg) scale(1.2)'},{transform:f.style.transform+' rotate(8deg) scale(1.1)'},{transform:f.style.transform+' rotate(0) scale(1)'}],{duration:700,iterations:2});
+    f.style.filter='drop-shadow(0 0 8px rgba(255,215,0,0.6))';
+    setTimeout(()=>{f.style.filter='drop-shadow(0 2px 4px rgba(0,0,0,0.3))';},1400);
+  },650);
+  setTimeout(()=>{f._feeding=false;swimFish(f);},2200);
+}
+
+// ==================== EFFECTS ====================
+function createMiniConfetti(btn){const r=btn.getBoundingClientRect(),c=['#ffd700','#ff6b6b','#51cf66','#74c0fc','#da77f2','#ffa94d'];for(let i=0;i<12;i++){const e=document.createElement('div');e.className='confetti-piece';e.style.left=(r.left+r.width/2+(Math.random()-0.5)*80)+'px';e.style.top=r.top+'px';e.style.background=c[rnd(0,5)];e.style.width=(4+Math.random()*7)+'px';e.style.height=e.style.width;e.style.borderRadius=Math.random()>0.5?'50%':'2px';e.style.animationDuration=(1+Math.random()*1.5)+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),3000);}}
+function bigConfetti(){const c=['#ffd700','#ff6b6b','#51cf66','#74c0fc','#da77f2','#ffa94d','#ff69b4','#00ff88'];for(let i=0;i<50;i++){setTimeout(()=>{const e=document.createElement('div');e.className='confetti-piece';e.style.left=Math.random()*100+'vw';e.style.top='-15px';e.style.background=c[rnd(0,7)];e.style.width=(7+Math.random()*10)+'px';e.style.height=e.style.width;e.style.borderRadius=Math.random()>0.5?'50%':'3px';e.style.animationDuration=(2+Math.random()*2.5)+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),5000);},i*40);}}
+function initParticles(){const c=document.getElementById('particles');for(let i=0;i<25;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.width=p.style.height=(2+Math.random()*3)+'px';p.style.animationDuration=(8+Math.random()*12)+'s';p.style.animationDelay=Math.random()*8+'s';c.appendChild(p);}}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]];}}
+
+// ==================== DRESSUP ====================
+let dressupMode=false, duStep=0, duActiveSteps=[];
+// SVG-based dressup steps
+const DRESSUP_STEPS=[
+  {id:'skin',label:{tr:'Ten Rengi',en:'Skin Tone'},svgFill:['sg-head','sg-neck','sg-leg-l','sg-leg-r','sg-arms-skin'],show:[],opts:[
+    {name:{tr:'Acik',en:'Light'},color:'#fce4c7'},{name:{tr:'Orta',en:'Medium'},color:'#f5d0a9'},{name:{tr:'Koyu',en:'Tan'},color:'#c68642'},{name:{tr:'Esmer',en:'Dark'},color:'#8d5524'}]},
+  {id:'hair',label:{tr:'Sac Rengi',en:'Hair Color'},svgFill:['sg-hair-back','sg-hair-front'],show:['sg-hair-back','sg-hair-front'],opts:[
+    {name:{tr:'Siyah',en:'Black'},color:'#1a1a2e'},{name:{tr:'Kahverengi',en:'Brown'},color:'#5a3825'},{name:{tr:'Sari',en:'Blonde'},color:'#f5c542'},{name:{tr:'Kizil',en:'Red'},color:'#c0392b'}]},
+  {id:'eyes',label:{tr:'Goz Rengi',en:'Eye Color'},svgFill:['sg-iris-l','sg-iris-r'],show:['sg-eyes','sg-iris-l','sg-iris-r','sg-pupil-l','sg-pupil-r','sg-shine-l','sg-shine-r'],opts:[
+    {name:{tr:'Kahve',en:'Brown'},color:'#5D4037'},{name:{tr:'Mavi',en:'Blue'},color:'#42A5F5'},{name:{tr:'Yesil',en:'Green'},color:'#66BB6A'},{name:{tr:'Ela',en:'Hazel'},color:'#8D6E63'}]},
+  {id:'brows',label:{tr:'Kaslar',en:'Eyebrows'},svgStroke:['sg-brows'],show:['sg-brows'],opts:[
+    {name:{tr:'Siyah',en:'Black'},color:'#222'},{name:{tr:'Kahve',en:'Brown'},color:'#5a3825'},{name:{tr:'Acik',en:'Light'},color:'#a0845c'},{name:{tr:'Koyu',en:'Dark'},color:'#3e2723'}]},
+  {id:'mouth',label:{tr:'Dudak',en:'Lips'},svgStroke:['sg-mouth'],show:['sg-mouth'],opts:[
+    {name:{tr:'Pembe',en:'Pink'},color:'#e91e63'},{name:{tr:'Kirmizi',en:'Red'},color:'#c62828'},{name:{tr:'Mercan',en:'Coral'},color:'#ff7043'},{name:{tr:'Dogal',en:'Natural'},color:'#d4796a'}]},
+  {id:'blush',label:{tr:'Allik',en:'Blush'},svgFill:[],show:['sg-blush'],opts:[
+    {name:{tr:'Pembe',en:'Pink'},color:'#f48fb1'},{name:{tr:'Seftali',en:'Peach'},color:'#ffab91'},{name:{tr:'Gul',en:'Rose'},color:'#e57373'},{name:{tr:'Yok',en:'None'},color:'transparent',hide:true}]},
+  {id:'top',label:{tr:'Ust Giysi',en:'Top'},svgFill:['sg-torso','sg-sleeves'],show:['sg-torso','sg-sleeves'],opts:[
+    {name:{tr:'Beyaz',en:'White'},color:'#ecf0f1'},{name:{tr:'Pembe',en:'Pink'},color:'#f8bbd0'},{name:{tr:'Mavi',en:'Blue'},color:'#64b5f6'},{name:{tr:'Mor',en:'Purple'},color:'#ce93d8'}]},
+  {id:'skirt',label:{tr:'Etek',en:'Skirt'},svgFill:['sg-skirt'],show:['sg-skirt'],opts:[
+    {name:{tr:'Siyah',en:'Black'},color:'#2c2c2c'},{name:{tr:'Kirmizi',en:'Red'},color:'#ef5350'},{name:{tr:'Mavi',en:'Blue'},color:'#5c6bc0'},{name:{tr:'Yesil',en:'Green'},color:'#66bb6a'}]},
+  {id:'socks',label:{tr:'Corap',en:'Socks'},svgFill:['sg-sock-l','sg-sock-r'],show:['sg-sock-l','sg-sock-r'],opts:[
+    {name:{tr:'Beyaz',en:'White'},color:'#fff'},{name:{tr:'Siyah',en:'Black'},color:'#333'},{name:{tr:'Pembe',en:'Pink'},color:'#f48fb1'},{name:{tr:'Yesil',en:'Green'},color:'#a5d6a7'}]},
+  {id:'shoes',label:{tr:'Ayakkabi',en:'Shoes'},svgFill:['sg-shoe-l','sg-shoe-r'],show:['sg-shoe-l','sg-shoe-r'],opts:[
+    {name:{tr:'Siyah',en:'Black'},color:'#1a1a1a'},{name:{tr:'Kirmizi',en:'Red'},color:'#c62828'},{name:{tr:'Beyaz',en:'White'},color:'#e0e0e0'},{name:{tr:'Pembe',en:'Pink'},color:'#f06292'}]},
+  {id:'glasses',label:{tr:'Gozluk',en:'Glasses'},svgStroke:['sg-glasses'],show:['sg-glasses'],opts:[
+    {name:{tr:'Siyah',en:'Black'},color:'#222'},{name:{tr:'Kahve',en:'Brown'},color:'#5d4037'},{name:{tr:'Kirmizi',en:'Red'},color:'#c62828'},{name:{tr:'Yok',en:'None'},color:'transparent',hide:true}]},
+  {id:'hat',label:{tr:'Sapka',en:'Hat'},svgFill:['sg-hat'],show:['sg-hat'],opts:[
+    {name:{tr:'Pembe',en:'Pink'},color:'#f48fb1'},{name:{tr:'Mavi',en:'Blue'},color:'#42a5f5'},{name:{tr:'Siyah',en:'Black'},color:'#333'},{name:{tr:'Yok',en:'None'},color:'transparent',hide:true}]},
+  {id:'necklace',label:{tr:'Kolye',en:'Necklace'},svgStroke:['sg-necklace'],show:['sg-necklace'],opts:[
+    {name:{tr:'Altin',en:'Gold'},color:'#ffd700'},{name:{tr:'Gumus',en:'Silver'},color:'#bdbdbd'},{name:{tr:'Inci',en:'Pearl'},color:'#fff5ee'},{name:{tr:'Yok',en:'None'},color:'transparent',hide:true}]},
+  {id:'earrings',label:{tr:'Kupe',en:'Earrings'},svgFill:['sg-earrings'],show:['sg-earrings'],opts:[
+    {name:{tr:'Altin',en:'Gold'},color:'#ffd700'},{name:{tr:'Gumus',en:'Silver'},color:'#bdbdbd'},{name:{tr:'Kirmizi',en:'Red'},color:'#ef5350'},{name:{tr:'Yok',en:'None'},color:'transparent',hide:true}]},
+  {id:'bag',label:{tr:'Canta',en:'Bag'},svgFill:['sg-bag'],show:['sg-bag'],opts:[
+    {name:{tr:'Kahve',en:'Brown'},color:'#795548'},{name:{tr:'Siyah',en:'Black'},color:'#333'},{name:{tr:'Pembe',en:'Pink'},color:'#f48fb1'},{name:{tr:'Yok',en:'None'},color:'transparent',hide:true}]},
+  {id:'bg',label:{tr:'Sahne',en:'Scene'},svgFill:['svg-bg'],show:[],opts:[
+    {name:{tr:'Park',en:'Park'},color:'url(#skyGrad)'},{name:{tr:'Gunbatimi',en:'Sunset'},color:'#ff9a9e'},{name:{tr:'Gece',en:'Night'},color:'#1a1a3e'},{name:{tr:'Plaj',en:'Beach'},color:'#ffe4b5'}]},
+];
+
+function initDressup(){
+  dressupMode=true;duStep=0;duCompletedSteps=[];
+  document.getElementById('leaderboard').style.display='none';
+  document.getElementById('dressup-panel').style.display='flex';
+  const oldArea=document.getElementById('du-reedit-area');
+  if(oldArea)oldArea.remove();
+
+  // Filter steps based on gender (boys get 'pants' instead of 'skirt')
+  let allSteps=[...DRESSUP_STEPS];
+  if(selectedGender==='boy'){
+    // Replace skirt step with pants
+    allSteps=allSteps.map(s=>{
+      if(s.id==='skirt')return {id:'pants',label:{tr:'Pantolon',en:'Pants'},svgFill:['sg-skirt'],show:['sg-skirt'],opts:[
+        {name:{tr:'Siyah',en:'Black'},color:'#37474f'},{name:{tr:'Mavi Kot',en:'Blue Jeans'},color:'#5c6bc0'},{name:{tr:'Haki',en:'Khaki'},color:'#8d6e63'},{name:{tr:'Gri',en:'Gray'},color:'#78909c'}]};
+      return s;
+    });
+    // Set shorter hair defaults for boy
+    allSteps=allSteps.map(s=>{
+      if(s.id==='hair')return {...s,opts:[
+        {name:{tr:'Siyah',en:'Black'},color:'#1a1a2e'},{name:{tr:'Kahverengi',en:'Brown'},color:'#3e2723'},{name:{tr:'Sari',en:'Blonde'},color:'#f5c542'},{name:{tr:'Kizil',en:'Red'},color:'#b71c1c'}]};
+      return s;
+    });
+  }
+
+  duActiveSteps=[];
+  for(let i=0;i<questionCount;i++){
+    duActiveSteps.push(allSteps[i % allSteps.length]);
+  }
+
+  // Reset SVG character - hide optional parts
+  const hideIds=['sg-hair-back','sg-hair-front','sg-eyes','sg-iris-l','sg-iris-r','sg-pupil-l','sg-pupil-r','sg-shine-l','sg-shine-r','sg-brows','sg-mouth','sg-blush','sg-torso','sg-sleeves','sg-skirt','sg-sock-l','sg-sock-r','sg-shoe-l','sg-shoe-r','sg-glasses','sg-hat','sg-necklace','sg-earrings','sg-bag'];
+  hideIds.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('svg-hidden');});
+  document.getElementById('du-choices').innerHTML='';
+  document.getElementById('du-step-label').textContent='';
+  document.getElementById('du-auto-msg').classList.add('cp-hidden');
+}
+
+// Track completed steps for re-editing
+let duCompletedSteps=[];
+
+function showDressupChoice(wasCorrect){
+  if(!dressupMode||duStep>=duActiveSteps.length)return;
+  const step=duActiveSteps[duStep];
+  const l=currentLang;
+  const label=step.label[l]||step.label.en;
+
+  if(!wasCorrect){
+    const pick=step.opts[rnd(0,step.opts.length-1)];
+    applyDressupChoice(step,pick);
+    document.getElementById('du-step-label').textContent=`${label}: ${pick.name[l]||pick.name.en}`;
+    document.getElementById('du-auto-msg').textContent=currentLang==='tr'?'Yanlis cevap - sistem secti!':'Wrong answer - system chose!';
+    document.getElementById('du-auto-msg').classList.remove('cp-hidden');
+    document.getElementById('du-choices').innerHTML='';
+    duCompletedSteps.push({step,chosen:pick,index:duStep});
+    duStep++;
+    updateReEditButtons();
+    return;
+  }
+
+  document.getElementById('du-auto-msg').classList.add('cp-hidden');
+  document.getElementById('du-step-label').textContent=currentLang==='tr'?`${label} sec!`:`Pick ${label}!`;
+  renderDuChoices(step,duStep);
+}
+
+function renderDuChoices(step,stepIndex,isReEdit){
+  const l=currentLang;
+  const label=step.label[l]||step.label.en;
+  const choicesDiv=document.getElementById('du-choices');
+  choicesDiv.innerHTML='';
+  step.opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='du-choice';
+    const dotStyle=`background:${opt.color}`;
+    btn.innerHTML=`<span class="color-dot" style="${dotStyle};${opt.color==='transparent'?'border-style:dashed':''}"></span>${opt.name[l]||opt.name.en}`;
+    btn.onclick=()=>{
+      applyDressupChoice(step,opt);
+      // Highlight selected, allow re-selection
+      choicesDiv.querySelectorAll('.du-choice').forEach(b=>b.classList.remove('picked'));
+      btn.classList.add('picked');
+      if(!isReEdit){
+        // First selection for this step - track it
+        const existing=duCompletedSteps.find(r=>r.step.id===step.id);
+        if(existing){existing.chosen=opt;}
+        else{duCompletedSteps.push({step,chosen:opt,index:stepIndex});duStep++;}
+        updateReEditButtons();
+      } else {
+        const rec=duCompletedSteps.find(r=>r.step.id===step.id);
+        if(rec)rec.chosen=opt;
+        updateReEditButtons();
+      }
+      document.getElementById('du-step-label').textContent=`${label}: ${opt.name[l]||opt.name.en} \u2713`;
+    };
+    choicesDiv.appendChild(btn);
+  });
+}
+
+function updateReEditButtons(){
+  // Remove old re-edit area
+  let area=document.getElementById('du-reedit-area');
+  if(!area){
+    area=document.createElement('div');
+    area.id='du-reedit-area';
+    area.style.cssText='display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:4px';
+    document.getElementById('du-choices').after(area);
+  }
+  area.innerHTML='';
+  if(duCompletedSteps.length===0)return;
+  const l=currentLang;
+  const title=document.createElement('div');
+  title.className='du-reedit';
+  title.textContent=currentLang==='tr'?'Degistir:':'Change:';
+  title.style.width='100%';
+  area.appendChild(title);
+  duCompletedSteps.forEach(rec=>{
+    const btn=document.createElement('button');
+    btn.className='du-choice';
+    btn.style.cssText='padding:4px 8px;font-size:0.7rem;min-height:28px';
+    const lbl=rec.step.label[l]||rec.step.label.en;
+    btn.innerHTML=`<span class="color-dot" style="width:14px;height:14px;background:${rec.chosen.color}"></span>${lbl}`;
+    btn.onclick=()=>{
+      document.getElementById('du-step-label').textContent=currentLang==='tr'?`${lbl} degistir!`:`Change ${lbl}!`;
+      document.getElementById('du-auto-msg').classList.add('cp-hidden');
+      renderDuChoices(rec.step,rec.index,true);
+    };
+    area.appendChild(btn);
+  });
+}
+
+function applyDressupChoice(step,opt){
+  // Show SVG groups
+  step.show.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){
+      if(opt.hide){el.classList.add('svg-hidden');return;}
+      el.classList.remove('svg-hidden');
+    }
+  });
+  // Apply fill color to SVG elements
+  if(step.svgFill)(step.svgFill).forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    if(opt.hide){el.classList.add('svg-hidden');return;}
+    // For groups, set fill on all children
+    if(el.tagName==='g'){
+      el.querySelectorAll('*').forEach(c=>{
+        if(c.getAttribute('fill')&&c.getAttribute('fill')!=='none'&&c.getAttribute('fill')!=='white'&&!c.getAttribute('fill').startsWith('rgba'))
+          c.setAttribute('fill',opt.color);
+      });
+    } else {
+      el.setAttribute('fill',opt.color);
+    }
+  });
+  // Apply stroke color
+  if(step.svgStroke)(step.svgStroke).forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    if(opt.hide){el.classList.add('svg-hidden');return;}
+    if(el.tagName==='g'){
+      el.querySelectorAll('*').forEach(c=>{
+        if(c.getAttribute('stroke'))c.setAttribute('stroke',opt.color);
+      });
+    } else {
+      el.setAttribute('stroke',opt.color);
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded',()=>{initParticles();initAquarium();renderLeaderboard();init3DRotate();});
+
+// 3D character rotation with mouse drag
+function init3DRotate(){
+  const container=document.getElementById('char-container');
+  if(!container)return;
+  let dragging=false,startX=0,currentRotY=0,targetRotY=0;
+  container.addEventListener('mousedown',e=>{dragging=true;startX=e.clientX;e.preventDefault();});
+  container.addEventListener('touchstart',e=>{dragging=true;startX=e.touches[0].clientX;});
+  window.addEventListener('mousemove',e=>{if(!dragging)return;const dx=e.clientX-startX;targetRotY=currentRotY+dx*0.5;applyRot();});
+  window.addEventListener('touchmove',e=>{if(!dragging)return;const dx=e.touches[0].clientX-startX;targetRotY=currentRotY+dx*0.5;applyRot();});
+  window.addEventListener('mouseup',()=>{if(dragging){currentRotY=targetRotY;dragging=false;}});
+  window.addEventListener('touchend',()=>{if(dragging){currentRotY=targetRotY;dragging=false;}});
+  // Spring back to front after release
+  function applyRot(){
+    const body=document.getElementById('char-body');
+    if(body){
+      // Clamp rotation to -40 to 40 degrees
+      const clamped=Math.max(-40,Math.min(40,targetRotY));
+      body.style.transform=`translateX(-50%) rotateY(${clamped}deg)`;
+    }
+  }
+  // Auto spring back
+  setInterval(()=>{
+    if(!dragging&&Math.abs(currentRotY)>0.5){
+      currentRotY*=0.92;
+      targetRotY=currentRotY;
+      const body=document.getElementById('char-body');
+      if(body)body.style.transform=`translateX(-50%) rotateY(${currentRotY}deg)`;
+    }
+  },30);
+}
+document.getElementById('player-name').addEventListener('keypress',e=>{if(e.key==='Enter')goToSetup();});
+</script>
+</body>
+</html>
