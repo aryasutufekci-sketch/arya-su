@@ -282,6 +282,43 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(180deg,#1a1a2e 0
 .yt-popup-title{font-family:'Fredoka One',cursive;font-size:0.85rem;color:#ff4444;margin-bottom:10px}
 .yt-popup-sub{display:inline-flex;align-items:center;gap:6px;background:#cc0000;color:white;padding:8px 18px;border-radius:4px;font-size:0.85rem;font-weight:700;text-decoration:none;font-family:'Nunito',sans-serif;transition:all 0.3s;border:none}
 .yt-popup-sub:hover{background:#ff0000;transform:scale(1.05)}
+
+/* ADMIN PANEL */
+.admin-btn{width:32px;height:32px;border-radius:50%;border:2px solid transparent;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6)}
+.admin-btn:hover{transform:scale(1.15);color:var(--gold);border-color:var(--gold)}
+.admin-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+.admin-overlay.active{display:flex}
+.admin-login{background:rgba(20,25,50,0.95);border:2px solid rgba(255,255,255,0.15);border-radius:20px;padding:30px;width:90%;max-width:360px;text-align:center}
+.admin-login h3{font-family:'Fredoka One',cursive;color:var(--gold);margin-bottom:15px}
+.admin-login input{width:100%;padding:12px;border-radius:10px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:white;font-size:1rem;font-family:'Nunito',sans-serif;outline:none;text-align:center}
+.admin-login input:focus{border-color:var(--gold)}
+.admin-login .admin-error{color:var(--coral);font-size:0.8rem;margin-top:6px;display:none}
+.admin-login .admin-btns{display:flex;gap:8px;margin-top:12px;justify-content:center}
+.admin-panel{background:rgba(20,25,50,0.98);border:2px solid rgba(255,215,0,0.2);border-radius:20px;padding:24px;width:95%;max-width:700px;max-height:85vh;overflow-y:auto;text-align:left}
+.admin-panel h3{font-family:'Fredoka One',cursive;color:var(--gold);margin-bottom:12px;text-align:center}
+.admin-panel .admin-close{position:absolute;top:12px;right:16px;font-size:1.5rem;cursor:pointer;color:rgba(255,255,255,0.5)}
+.admin-panel .admin-close:hover{color:white}
+.admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.admin-stat{background:rgba(255,255,255,0.06);border-radius:12px;padding:12px;text-align:center}
+.admin-stat .stat-num{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--gold)}
+.admin-stat .stat-label{font-size:0.75rem;color:var(--sky);margin-top:2px}
+.admin-log-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.admin-log-table th{background:rgba(255,215,0,0.15);color:var(--gold);padding:8px 6px;text-align:left;font-family:'Fredoka One',cursive;font-weight:normal;font-size:0.75rem;position:sticky;top:0}
+.admin-log-table td{padding:6px;border-bottom:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.8)}
+.admin-log-table tr:hover td{background:rgba(255,255,255,0.04)}
+.admin-log-status{display:inline-block;padding:1px 6px;border-radius:8px;font-size:0.7rem;font-weight:700}
+.admin-log-status.online{background:rgba(81,207,102,0.2);color:var(--mint)}
+.admin-log-status.offline{background:rgba(255,107,107,0.2);color:var(--coral)}
+.admin-tab-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.admin-tab{padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.15);background:none;color:rgba(255,255,255,0.6);font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.3s}
+.admin-tab.active{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.1)}
+.admin-section{display:none}
+.admin-section.active{display:block}
+@media(max-width:600px){
+  .admin-panel{padding:16px}
+  .admin-log-table{font-size:0.7rem}
+  .admin-stats{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
@@ -306,6 +343,50 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(180deg,#1a1a2e 0
   <button class="lang-btn" onclick="setLang('ru')" title="Русский"><img src="https://flagcdn.com/w40/ru.png" alt="RU" style="width:22px;height:15px;border-radius:3px"></button>
   <button class="lang-btn" onclick="setLang('ar')" title="العربية"><img src="https://flagcdn.com/w40/sa.png" alt="AR" style="width:22px;height:15px;border-radius:3px"></button>
   <button class="lang-btn" onclick="setLang('tr')" title="Türkçe"><img src="https://flagcdn.com/w40/tr.png" alt="TR" style="width:22px;height:15px;border-radius:3px"></button>
+  <button class="admin-btn" onclick="showAdminLogin()" title="Admin">&#x2699;</button>
+</div>
+
+<!-- ADMIN OVERLAY -->
+<div class="admin-overlay" id="admin-overlay">
+  <!-- Login -->
+  <div class="admin-login" id="admin-login">
+    <h3>&#x1F512; Admin Panel</h3>
+    <input type="password" id="admin-pwd" placeholder="Password..." onkeypress="if(event.key==='Enter')checkAdminPwd()">
+    <div class="admin-error" id="admin-error">Wrong password!</div>
+    <div class="admin-btns">
+      <button class="btn btn-primary" onclick="checkAdminPwd()" style="padding:8px 20px;font-size:0.85rem">Login</button>
+      <button class="btn" onclick="closeAdmin()" style="padding:8px 20px;font-size:0.85rem;background:rgba(255,255,255,0.1);color:white">Cancel</button>
+    </div>
+  </div>
+  <!-- Dashboard -->
+  <div class="admin-panel" id="admin-dashboard" style="display:none;position:relative">
+    <span class="admin-close" onclick="closeAdmin()">&times;</span>
+    <h3>&#x1F4CA; Arya's World — Admin Dashboard</h3>
+    <div class="admin-stats" id="admin-stats"></div>
+    <div class="admin-tab-bar">
+      <button class="admin-tab active" onclick="switchAdminTab('logs',this)">Visitor Logs</button>
+      <button class="admin-tab" onclick="switchAdminTab('games',this)">Game Logs</button>
+      <button class="admin-tab" onclick="switchAdminTab('live',this)">Live</button>
+    </div>
+    <div class="admin-section active" id="admin-tab-logs">
+      <table class="admin-log-table">
+        <thead><tr><th>Time</th><th>Name</th><th>Country</th><th>City</th><th>Device</th><th>IP</th></tr></thead>
+        <tbody id="admin-log-body"></tbody>
+      </table>
+    </div>
+    <div class="admin-section" id="admin-tab-games">
+      <table class="admin-log-table">
+        <thead><tr><th>Time</th><th>Player</th><th>Category</th><th>Difficulty</th><th>Score</th><th>Questions</th></tr></thead>
+        <tbody id="admin-game-body"></tbody>
+      </table>
+    </div>
+    <div class="admin-section" id="admin-tab-live">
+      <div style="text-align:center;padding:20px;color:var(--sky)">
+        <div style="font-size:2rem;font-family:'Fredoka One',cursive" id="admin-live-count">0</div>
+        <div>Active visitors (last 5 min)</div>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="particles" id="particles"></div>
 
@@ -1251,7 +1332,11 @@ function getClue(country,type){
 
 // ==================== NAVIGATION ====================
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
-function goToSetup(){playerName=document.getElementById('player-name').value.trim()||'Explorer';showScreen('setup-screen');document.getElementById('setup-greeting').textContent=`${playerName}!`;}
+function goToSetup(){playerName=document.getElementById('player-name').value.trim()||'Explorer';showScreen('setup-screen');document.getElementById('setup-greeting').textContent=`${playerName}!`;
+  // Update visitor log with player name
+  const vLogs=JSON.parse(localStorage.getItem('arya_visitor_logs')||'[]');
+  if(vLogs.length>0){vLogs[0].name=playerName;localStorage.setItem('arya_visitor_logs',JSON.stringify(vLogs));}
+}
 function selectCount(n,btn){questionCount=n;document.querySelectorAll('.q-option').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');checkReady();}
 function selectDiff(d,btn){difficulty=d;document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');checkReady();}
 function toggleCat(c,btn){
@@ -1447,6 +1532,9 @@ function showResults(){
   for(let i=0;i<5;i++)setTimeout(()=>dropFood(),i*300);
   saveScore();
   renderResultLeaderboard();
+  // Log game result for admin panel
+  const catNames2=[...selectedCats].join('+');
+  if(typeof logGameResult==='function') logGameResult(playerName, catNames2, difficulty, score, questions.length, correctCount);
 }
 
 function restart(){
@@ -1829,6 +1917,157 @@ document.getElementById('player-name').addEventListener('keypress',e=>{if(e.key=
     if(!e.target.closest('#yt-float-wrap'))popup.classList.remove('visible');
   });
 })();
+
+// ==================== ADMIN PANEL ====================
+const ADMIN_HASH='66937d9568b78865a0f6a82ce6d791152148b65c58e77025106e5c68aaeb4c8f';
+const LOG_API='https://arya.su/api/log'; // Will be set up on DO server
+
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function showAdminLogin(){
+  document.getElementById('admin-overlay').classList.add('active');
+  document.getElementById('admin-login').style.display='block';
+  document.getElementById('admin-dashboard').style.display='none';
+  document.getElementById('admin-pwd').value='';
+  document.getElementById('admin-error').style.display='none';
+  setTimeout(()=>document.getElementById('admin-pwd').focus(),100);
+}
+
+async function checkAdminPwd(){
+  const pwd=document.getElementById('admin-pwd').value;
+  const hash=await sha256(pwd);
+  if(hash===ADMIN_HASH){
+    document.getElementById('admin-login').style.display='none';
+    document.getElementById('admin-dashboard').style.display='block';
+    loadAdminData();
+  } else {
+    document.getElementById('admin-error').style.display='block';
+    document.getElementById('admin-pwd').value='';
+  }
+}
+
+function closeAdmin(){
+  document.getElementById('admin-overlay').classList.remove('active');
+}
+
+function switchAdminTab(tab,btn){
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('admin-tab-'+tab).classList.add('active');
+}
+
+// Visitor logging — collect info on each page load
+function collectVisitorLog(){
+  const log={
+    ts: new Date().toISOString(),
+    name: '',
+    ua: navigator.userAgent,
+    lang: navigator.language,
+    screen: screen.width+'x'+screen.height,
+    ref: document.referrer||'direct',
+    page: location.pathname,
+    country: '-',
+    city: '-',
+    ip: '-'
+  };
+  // Detect device type
+  const ua=navigator.userAgent;
+  if(/Mobile|Android|iPhone/i.test(ua)) log.device='Mobile';
+  else if(/Tablet|iPad/i.test(ua)) log.device='Tablet';
+  else log.device='Desktop';
+  // Get country/city from IP (free API, no key needed)
+  fetch('https://ipapi.co/json/',{signal:AbortSignal.timeout(3000)}).then(r=>r.json()).then(data=>{
+    log.country=data.country_name||'-';
+    log.city=data.city||'-';
+    log.ip=data.ip||'-';
+    // Update the stored log with geo data
+    const logs=JSON.parse(localStorage.getItem('arya_visitor_logs')||'[]');
+    if(logs.length>0 && logs[0].ts===log.ts){
+      logs[0]=log;
+      localStorage.setItem('arya_visitor_logs',JSON.stringify(logs));
+    }
+  }).catch(()=>{});
+  // Store locally immediately (geo updates async)
+  const logs=JSON.parse(localStorage.getItem('arya_visitor_logs')||'[]');
+  logs.unshift(log);
+  if(logs.length>500) logs.length=500;
+  localStorage.setItem('arya_visitor_logs',JSON.stringify(logs));
+  // Try to send to server
+  try{
+    navigator.sendBeacon&&navigator.sendBeacon(LOG_API,JSON.stringify(log));
+  }catch(e){}
+  return log;
+}
+
+// Game log — called when a game finishes
+function logGameResult(playerName, category, difficulty, score, totalQ, correctQ){
+  const log={
+    ts: new Date().toISOString(),
+    player: playerName,
+    category: category,
+    difficulty: difficulty,
+    score: score,
+    totalQ: totalQ,
+    correctQ: correctQ
+  };
+  const logs=JSON.parse(localStorage.getItem('arya_game_logs')||'[]');
+  logs.unshift(log);
+  if(logs.length>500) logs.length=500;
+  localStorage.setItem('arya_game_logs',JSON.stringify(logs));
+  try{
+    navigator.sendBeacon&&navigator.sendBeacon(LOG_API,JSON.stringify({type:'game',...log}));
+  }catch(e){}
+}
+
+function loadAdminData(){
+  // Stats
+  const vLogs=JSON.parse(localStorage.getItem('arya_visitor_logs')||'[]');
+  const gLogs=JSON.parse(localStorage.getItem('arya_game_logs')||'[]');
+  const today=new Date().toISOString().slice(0,10);
+  const todayVisits=vLogs.filter(l=>l.ts.startsWith(today)).length;
+  const todayGames=gLogs.filter(l=>l.ts.startsWith(today)).length;
+  const avgScore=gLogs.length?Math.round(gLogs.reduce((s,l)=>s+l.score,0)/gLogs.length):0;
+  const uniquePlayers=new Set(gLogs.map(l=>l.player)).size;
+
+  document.getElementById('admin-stats').innerHTML=`
+    <div class="admin-stat"><div class="stat-num">${vLogs.length}</div><div class="stat-label">Total Visits</div></div>
+    <div class="admin-stat"><div class="stat-num">${todayVisits}</div><div class="stat-label">Today</div></div>
+    <div class="admin-stat"><div class="stat-num">${gLogs.length}</div><div class="stat-label">Games Played</div></div>
+    <div class="admin-stat"><div class="stat-num">${uniquePlayers}</div><div class="stat-label">Unique Players</div></div>
+    <div class="admin-stat"><div class="stat-num">${avgScore}</div><div class="stat-label">Avg Score</div></div>
+  `;
+
+  // Visitor logs table
+  const vBody=document.getElementById('admin-log-body');
+  vBody.innerHTML=vLogs.slice(0,100).map(l=>{
+    const t=new Date(l.ts);
+    const time=t.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'})+' '+t.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+    return `<tr><td>${time}</td><td>${l.name||'-'}</td><td>${l.country||l.lang||'-'}</td><td>${l.city||'-'}</td><td>${l.device||'-'}</td><td>${l.ip||'-'}</td></tr>`;
+  }).join('');
+
+  // Game logs table
+  const gBody=document.getElementById('admin-game-body');
+  gBody.innerHTML=gLogs.slice(0,100).map(l=>{
+    const t=new Date(l.ts);
+    const time=t.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'})+' '+t.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+    return `<tr><td>${time}</td><td>${l.player}</td><td>${l.category}</td><td>${l.difficulty}</td><td>${l.score}/100</td><td>${l.correctQ||'-'}/${l.totalQ||'-'}</td></tr>`;
+  }).join('');
+
+  // Live count
+  const fiveMinAgo=Date.now()-5*60*1000;
+  const live=vLogs.filter(l=>new Date(l.ts).getTime()>fiveMinAgo).length;
+  document.getElementById('admin-live-count').textContent=live;
+}
+
+// Update visitor name when they enter it
+const _origGoToSetup=typeof goToSetup==='function'?goToSetup:null;
+
+// Log visitor on page load
+collectVisitorLog();
 </script>
 </body>
 </html>
